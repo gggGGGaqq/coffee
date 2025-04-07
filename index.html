@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Интерактивное Меню Кофейни v2.1 (Анимации)</title>
+    <title>Интерактивное Меню Кофейни v2.1 (Диагностика)</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -245,11 +245,11 @@
             transform: translateY(-6px) scale(1.04); /* Улучшенный hover */
             box-shadow: 0 10px 20px rgba(111, 78, 55, 0.25);
         }
-        .menu-item img { /* стили как раньше */ }
-        .menu-item h3 { /* стили как раньше */ }
-        .menu-item .price { /* стили как раньше */ }
-        .menu-item.disabled { /* стили как раньше */ }
-        .menu-item.disabled::after { /* стили как раньше */ }
+        .menu-item img { width: 100%; height: 100px; object-fit: cover; display: block; margin-bottom: 10px; border-radius: calc(var(--border-radius) - 5px); }
+        .menu-item h3 { font-size: 1em; margin-bottom: 5px; color: var(--primary-color); }
+        .menu-item .price { font-size: 0.9em; font-weight: bold; color: var(--text-color); }
+        .menu-item.disabled { cursor: not-allowed; opacity: 0.6; }
+        .menu-item.disabled::after { content: 'Нет'; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); background-color: rgba(255, 0, 0, 0.7); color: white; padding: 3px 8px; border-radius: 5px; font-size: 0.8em; font-weight: bold; }
 
         /* Кастомизация */
         .customization-option {
@@ -269,113 +269,81 @@
              opacity: 1;
              max-height: 500px;
          }
-        .customization-option h4 { /* стили как раньше */ }
-        .option-group { /* стили как раньше */ }
+        .customization-option h4 { color: var(--primary-color); margin-bottom: 10px; font-size: 1.1em; border-bottom: 1px solid var(--accent-color); padding-bottom: 5px; }
+        .option-group { display: flex; flex-wrap: wrap; gap: 10px; }
         .option-group label {
-            /* ... стили как раньше ... */
-            transition: background-color var(--transition-duration-fast) ease,
-                        color var(--transition-duration-fast) ease,
-                        border-color var(--transition-duration-fast) ease,
-                        transform var(--transition-duration-fast) ease, /* Добавляем transform */
-                        box-shadow var(--transition-duration-fast) ease; /* Добавляем shadow */
+            display: inline-block; padding: 8px 15px; background-color: var(--secondary-color); border: 1px solid #ddd; border-radius: 20px; cursor: pointer; font-size: 0.9em;
+            transition: background-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease, border-color var(--transition-duration-fast) ease, transform var(--transition-duration-fast) ease, box-shadow var(--transition-duration-fast) ease;
         }
-        .option-group input[type="radio"] { /* стили как раньше */ }
+        .option-group input[type="radio"] { display: none; }
         .option-group input[type="radio"]:checked + label {
-            /* ... стили как раньше ... */
-            transform: scale(1.03); /* Небольшое увеличение */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: var(--primary-color); color: var(--white-color); border-color: var(--primary-color); font-weight: bold;
+            transform: scale(1.03); box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .option-group input[type="radio"]:disabled + label { /* стили как раньше */ }
-        .option-group input[type="radio"]:disabled:checked + label { /* стили как раньше */ }
-        #current-item-price { /* стили как раньше */ }
+        .option-group input[type="radio"]:disabled + label { opacity: 0.5; cursor: not-allowed; background-color: var(--disabled-color); border-color: #bbb; color: #777; }
+        .option-group input[type="radio"]:disabled:checked + label { background-color: #a0a0a0; }
+        #current-item-price { font-size: 1.3em; font-weight: bold; color: var(--primary-color); text-align: center; margin-top: 15px; padding: 10px; background-color: var(--secondary-color); border-radius: var(--border-radius-small); }
 
         /* Корзина / Заказ */
-        #order-items-list {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 20px;
-        }
+        #order-items-list { list-style: none; padding: 0; margin-bottom: 20px; }
         #order-items-list li {
-            background-color: var(--secondary-color);
-            padding: 10px 12px;
-            margin-bottom: 10px;
-            border-radius: var(--border-radius-small);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: nowrap;
-            border-left: 5px solid var(--accent-color);
-            overflow: hidden;
-             /* Анимация */
-             opacity: 1;
-             transform: scale(1);
-             transition: opacity var(--transition-duration-normal) var(--easing-curve), transform var(--transition-duration-normal) var(--easing-curve), background-color var(--transition-duration-fast) ease;
-             transition-delay: 0s;
+            background-color: var(--secondary-color); padding: 10px 12px; margin-bottom: 10px; border-radius: var(--border-radius-small); display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; border-left: 5px solid var(--accent-color); overflow: hidden;
+             opacity: 1; transform: scale(1); transition: opacity var(--transition-duration-normal) var(--easing-curve), transform var(--transition-duration-normal) var(--easing-curve), background-color var(--transition-duration-fast) ease; transition-delay: 0s;
         }
-        /* Начальное состояние для анимации появления */
-        #order-items-list li.item-enter {
-             opacity: 0;
-             transform: scale(0.95) translateX(-15px);
-         }
-         /* Состояние для анимации удаления */
-        #order-items-list li.item-leaving {
-             opacity: 0;
-             transform: scale(0.9) translateX(15px);
-             background-color: #ffe0e0;
-         }
+        #order-items-list li.item-enter { opacity: 0; transform: scale(0.95) translateX(-15px); }
+        #order-items-list li.item-leaving { opacity: 0; transform: scale(0.9) translateX(15px); background-color: #ffe0e0; }
 
-        #order-items-list li .item-details { /* стили как раньше */ }
-        #order-items-list li .item-name { /* стили как раньше */ }
-        #order-items-list li .item-customizations { /* стили как раньше */ }
-        #order-items-list li .item-controls { /* стили как раньше */ }
-        .quantity-controls { /* стили как раньше */ }
-        .quantity-controls .btn-quantity { /* стили как раньше */ }
-        .quantity-controls .item-quantity { /* стили как раньше */ }
-        .item-price { /* стили как раньше */ }
-        .btn-edit-item { /* стили как раньше */ }
-        .btn-remove-item { /* стили как раньше */ }
+        #order-items-list li .item-details { flex-grow: 1; margin-right: 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        #order-items-list li .item-name { font-weight: bold; color: var(--primary-color); display: block; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+        #order-items-list li .item-customizations { font-size: 0.8em; color: #555; display: block; margin-top: 2px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+        #order-items-list li .item-controls { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+        .quantity-controls { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .quantity-controls .btn-quantity { background-color: var(--accent-color); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; line-height: 20px; text-align: center; cursor: pointer; transition: background-color var(--transition-duration-fast) ease, transform var(--transition-duration-fast) ease; padding: 0; display: flex; justify-content: center; align-items: center; }
+        .quantity-controls .btn-quantity:hover { background-color: #c89053; transform: scale(1.1); }
+        .quantity-controls .item-quantity { font-weight: bold; min-width: 20px; text-align: center; font-size: 0.95em; }
+        .item-price { font-weight: bold; white-space: nowrap; font-size: 0.95em; min-width: 50px; text-align: right; }
+        .btn-edit-item { background: none; border: none; font-size: 1.1em; cursor: pointer; color: var(--primary-color); padding: 0 3px; transition: transform var(--transition-duration-fast) ease; line-height: 1; }
+        .btn-edit-item:hover { transform: scale(1.15); }
+        .btn-remove-item { background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; cursor: pointer; line-height: 22px; text-align: center; padding: 0; flex-shrink: 0; transition: background-color var(--transition-duration-fast) ease, transform var(--transition-duration-fast) ease; }
+        .btn-remove-item:hover { background-color: #e60000; transform: scale(1.1); }
 
-        #order-total { /* стили как раньше */ }
-        #qr-code-container { /* стили как раньше */ }
-        #qr-code { /* стили как раньше */ }
-        #qr-code img { /* стили как раньше */ }
-        #order-status-container { /* стили как раньше */ }
-        #order-status-container h4 { /* стили как раньше */ }
-        #order-status { /* стили как раньше */ }
-        .status-pending, .status-processing, .status-ready { /* стили как раньше */ }
+
+        #order-total { font-size: 1.4em; font-weight: bold; color: var(--primary-color); text-align: right; margin-top: 20px; padding-top: 15px; border-top: 2px dashed var(--accent-color); }
+        #qr-code-container { text-align: center; margin-top: 25px; }
+        #qr-code { width: 180px; height: 180px; margin: 15px auto; border: 5px solid var(--secondary-color); border-radius: var(--border-radius); padding: 10px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #qr-code img { display: block; width: 100% !important; height: 100% !important; object-fit: contain; }
+        #order-status-container { margin-top: 25px; padding: 15px; background-color: var(--secondary-color); border-radius: var(--border-radius); text-align: center; }
+        #order-status-container h4 { color: var(--primary-color); margin-bottom: 10px; }
+        #order-status { font-size: 1.2em; font-weight: bold; padding: 10px; border-radius: var(--border-radius-small); transition: background-color 0.5s ease, color 0.5s ease; }
+        .status-pending { background-color: #ffc107; color: #333; }
+        .status-processing { background-color: #17a2b8; color: var(--white-color); }
+        .status-ready { background-color: var(--success-color); color: var(--white-color); }
 
         /* Кнопки */
-        .button-group { /* стили как раньше */ }
-        .btn {
-             /* ... стили как раньше ... */
-             transition: background-color var(--transition-duration-fast) ease, transform var(--transition-duration-fast) ease, box-shadow var(--transition-duration-fast) ease; /* Ускоренная анимация */
-        }
-        .btn-primary:hover, .btn-confirm:hover {
-             /* ... стили как раньше ... */
-             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); /* Усиленная тень */
-        }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; justify-content: space-between; flex-wrap: wrap; }
+        .btn { padding: 12px 20px; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: 600; text-align: center; transition: background-color var(--transition-duration-fast) ease, transform var(--transition-duration-fast) ease, box-shadow var(--transition-duration-fast) ease; flex-grow: 1; min-width: 120px; }
+        .btn-primary { background-color: var(--primary-color); color: var(--white-color); }
+        .btn-primary:hover { background-color: #5a3d2b; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); }
+        .btn-secondary { background-color: var(--accent-color); color: var(--white-color); }
+        .btn-secondary:hover { background-color: #c89053; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
+         .btn-back { background-color: #ccc; color: #333; }
+         .btn-back:hover { background-color: #bbb; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+         .btn-confirm { background-color: var(--success-color); color: var(--white-color); }
+         .btn-confirm:hover { background-color: #45a049; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); }
          /* Анимация кнопок при нажатии */
-         .btn:active, .btn-cart:active, .btn-filter:active, .btn-quantity:active, .btn-edit-item:active, .btn-remove-item:active {
-             transform: scale(0.97); /* Легкое сжатие при клике */
-             transition-duration: 0.05s; /* Быстрая реакция */
-         }
-         .btn-cart:active {
-              transform: translateY(-50%) scale(0.97); /* Коррекция для кнопки корзины */
-         }
+         .btn:active, .btn-cart:active, .btn-filter:active, .btn-quantity:active, .btn-edit-item:active, .btn-remove-item:active { transform: scale(0.97); transition-duration: 0.05s; }
+         .btn-cart:active { transform: translateY(-50%) scale(0.97); }
 
-
-        /* Другие стили (Анимации keyframes, loader, empty-order, temp-message, footer) без изменений */
-        @keyframes fadeIn { /* ... */ }
-        @keyframes slideDown { /* ... */ }
-        @keyframes spin { /* ... */ }
-        .loader { /* ... */ }
-        #empty-order-message { /* ... */ }
-        .temp-message { /* ... */ }
-        .temp-message.success { /* ... */ }
-        .temp-message.error { /* ... */ }
-        .temp-message.info { /* ... */ }
-        .temp-message.show { /* ... */ }
-        footer { /* ... */ }
+        /* Другие стили */
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader { border: 4px solid var(--secondary-color); border-radius: 50%; border-top: 4px solid var(--primary-color); width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 5px auto 0; }
+        #empty-order-message { text-align: center; color: #777; padding: 20px; font-style: italic; }
+        .temp-message { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; opacity: 0; transition: opacity 0.5s ease; font-size: 0.9em; font-weight: 500; }
+        .temp-message.success { background-color: var(--success-color); color: white; }
+        .temp-message.error { background-color: var(--error-color); color: white; }
+        .temp-message.info { background-color: var(--primary-color); color: white; }
+        .temp-message.show { opacity: 1; }
+        footer { text-align: center; padding: 15px; margin-top: 20px; font-size: 0.8em; color: #777; }
 
     </style>
 </head>
@@ -387,9 +355,7 @@
     </header>
 
     <div class="container">
-
-        <section id="menu-view" class="view active">
-             <h2>Меню</h2>
+        <section id="menu-view" class="view"> <h2>Меню</h2>
              <div id="menu-controls">
                  <div id="category-filters">
                      <button class="btn btn-filter active" data-category="all">Все</button>
@@ -398,58 +364,27 @@
                  </div>
                  <input type="search" id="menu-search" placeholder="Поиск по названию...">
              </div>
-             <div id="menu-grid">
-                 <p>Загрузка меню...</p>
-             </div>
+             <div id="menu-grid"><p>Загрузка меню...</p></div>
          </section>
 
         <section id="customization-view" class="view">
              <h2 id="customization-item-name">Настройте ваш напиток</h2>
-             <div class="customization-option visible" id="volume-option-section">
-                  <h4>Объём</h4>
-                  <div class="option-group" id="volume-options"></div>
-              </div>
-             <div class="customization-option visible" id="sweetness-option-section">
-                 <h4>Сладость</h4>
-                 <div class="option-group" id="sweetness-options"></div>
-             </div>
-             <div class="customization-option visible" id="strength-option-section">
-                 <h4>Крепость</h4>
-                 <div class="option-group" id="strength-options"></div>
-             </div>
-             <div class="customization-option" id="milk-option-section">
-                 <h4>Тип молока</h4>
-                 <div class="option-group" id="milk-options"></div>
-             </div>
-             <div class="customization-option" id="syrup-option-section">
-                 <h4>Сироп</h4>
-                 <div class="option-group" id="syrup-options"></div>
-             </div>
+             <div class="customization-option visible" id="volume-option-section"><h4>Объём</h4><div class="option-group" id="volume-options"></div></div>
+             <div class="customization-option visible" id="sweetness-option-section"><h4>Сладость</h4><div class="option-group" id="sweetness-options"></div></div>
+             <div class="customization-option visible" id="strength-option-section"><h4>Крепость</h4><div class="option-group" id="strength-options"></div></div>
+             <div class="customization-option" id="milk-option-section"><h4>Тип молока</h4><div class="option-group" id="milk-options"></div></div>
+             <div class="customization-option" id="syrup-option-section"><h4>Сироп</h4><div class="option-group" id="syrup-options"></div></div>
              <div id="current-item-price">Цена: 0₸</div>
-             <div class="button-group">
-                  <button id="back-to-menu-btn" class="btn btn-back">Назад к меню</button>
-                  <button id="add-update-order-btn" class="btn btn-primary">Добавить в заказ</button>
-             </div>
+             <div class="button-group"><button id="back-to-menu-btn" class="btn btn-back">Назад к меню</button><button id="add-update-order-btn" class="btn btn-primary">Добавить в заказ</button></div>
          </section>
 
         <section id="order-view" class="view">
              <h2>Ваш заказ</h2>
-             <div id="order-content">
-                  <ul id="order-items-list"></ul>
-                  <div id="order-total">Общая сумма: 0₸</div>
-             </div>
+             <div id="order-content"><ul id="order-items-list"></ul><div id="order-total">Общая сумма: 0₸</div></div>
              <p id="empty-order-message" style="display: none;">Ваш заказ пока пуст.</p>
-             <div id="qr-and-status" style="display: none;">
-                 <div id="qr-code-container"><h4>Ваш QR-код</h4><div id="qr-code"></div></div>
-                 <div id="order-status-container"><h4>Статус</h4><div id="order-status">Ожидание...</div><div id="status-loader" class="loader" style="display: none;"></div></div>
-             </div>
-             <div class="button-group">
-                 <button id="clear-order-btn" class="btn btn-back">Очистить заказ</button>
-                 <button id="checkout-btn" class="btn btn-confirm">Оформить заказ</button>
-                 <button id="new-order-btn" class="btn btn-secondary" style="display: none;">Новый заказ</button>
-             </div>
+             <div id="qr-and-status" style="display: none;"><div id="qr-code-container"><h4>Ваш QR-код</h4><div id="qr-code"></div></div><div id="order-status-container"><h4>Статус</h4><div id="order-status">Ожидание...</div><div id="status-loader" class="loader" style="display: none;"></div></div></div>
+             <div class="button-group"><button id="clear-order-btn" class="btn btn-back">Очистить заказ</button><button id="checkout-btn" class="btn btn-confirm">Оформить заказ</button><button id="new-order-btn" class="btn btn-secondary" style="display: none;">Новый заказ</button></div>
          </section>
-
     </div>
 
     <footer>
@@ -458,51 +393,27 @@
 
     <script>
         // --- Данные Меню и Кастомизации ---
-        const menuData = [ /* ... Как в предыдущем ответе ... */
-            // Кофе (кастомизируемый)
+        const menuData = [
             { id: 'espresso', name: 'Эспрессо', basePrice: 500, image: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80', category: 'coffee', customizable: true, options: ['strength'] },
             { id: 'cappuccino', name: 'Капучино', basePrice: 700, image: 'https://images.unsplash.com/photo-1557006094-40e596d98303?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80', category: 'coffee', customizable: true, options: ['volume', 'sweetness', 'strength', 'milk', 'syrup'] },
             { id: 'latte', name: 'Латте', basePrice: 750, image: 'https://images.unsplash.com/photo-1561882468-91101f2L_ZyQ?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80', category: 'coffee', customizable: true, options: ['volume', 'sweetness', 'strength', 'milk', 'syrup'] },
             { id: 'americano', name: 'Американо', basePrice: 600, image: 'https://images.unsplash.com/photo-1580933075516-ac7f7767164a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80', category: 'coffee', customizable: true, options: ['volume', 'strength'] },
             { id: 'mocha', name: 'Мокко', basePrice: 850, image: 'https://images.unsplash.com/photo-1608079778818-a04d8e4b2e4f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80', category: 'coffee', customizable: true, options: ['volume', 'sweetness', 'strength', 'milk'] },
             { id: 'raf', name: 'Раф', basePrice: 900, image: 'https://images.unsplash.com/photo-1572498859711-ff8e018124c8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80', category: 'coffee', customizable: true, options: ['volume', 'strength', 'syrup'] },
-            // Десерты (не кастомизируемые)
             { id: 'croissant', name: 'Круассан', basePrice: 450, image: 'https://images.unsplash.com/photo-1587132137056-7a8f0165f7d5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80', category: 'dessert', customizable: false, options: [] },
             { id: 'cheesecake', name: 'Чизкейк', basePrice: 800, image: 'https://images.unsplash.com/photo-1543572858-ab24314cd5cc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80', category: 'dessert', customizable: false, options: [] },
             { id: 'muffin', name: 'Маффин', basePrice: 550, image: 'https://images.unsplash.com/photo-1615310749319-39a1a5911043?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80', category: 'dessert', customizable: false, options: [] },
-         ];
-        const customizationData = { /* ... Как в предыдущем ответе ... */
-             volume: [
-                 { id: 'volume-small', name: 'Маленький', multiplier: 1.0, default: true },
-                 { id: 'volume-medium', name: 'Средний', multiplier: 1.2 },
-                 { id: 'volume-large', name: 'Большой', multiplier: 1.5 },
-             ],
-              sweetness: [
-                  { id: 'sweet-none', name: 'Без сахара', priceMod: 0, default: true },
-                  { id: 'sweet-low', name: 'Немного', priceMod: 10 },
-                  { id: 'sweet-standard', name: 'Стандарт', priceMod: 20 },
-                  { id: 'sweet-high', name: 'Сладкий', priceMod: 30 },
-              ],
-              strength: [
-                  { id: 'strength-standard', name: 'Стандарт', default: true },
-                  { id: 'strength-high', name: 'Крепче' },
-              ],
-              milk: [
-                  { id: 'milk-standard', name: 'Обычное', priceMod: 0, default: true },
-                  { id: 'milk-skim', name: 'Обезжиренное', priceMod: 0 },
-                  { id: 'milk-almond', name: 'Миндальное', priceMod: 150 },
-                  { id: 'milk-soy', name: 'Соевое', priceMod: 100 },
-              ],
-              syrup: [
-                  { id: 'syrup-none', name: 'Без сиропа', priceMod: 0, default: true },
-                  { id: 'syrup-vanilla', name: 'Ванильный', priceMod: 100 },
-                  { id: 'syrup-caramel', name: 'Карамельный', priceMod: 100 },
-                  { id: 'syrup-hazelnut', name: 'Ореховый', priceMod: 120 },
-              ]
-          };
+        ];
+        const customizationData = {
+             volume: [ { id: 'volume-small', name: 'Маленький', multiplier: 1.0, default: true },{ id: 'volume-medium', name: 'Средний', multiplier: 1.2 },{ id: 'volume-large', name: 'Большой', multiplier: 1.5 },],
+             sweetness: [ { id: 'sweet-none', name: 'Без сахара', priceMod: 0, default: true },{ id: 'sweet-low', name: 'Немного', priceMod: 10 },{ id: 'sweet-standard', name: 'Стандарт', priceMod: 20 },{ id: 'sweet-high', name: 'Сладкий', priceMod: 30 },],
+             strength: [ { id: 'strength-standard', name: 'Стандарт', default: true },{ id: 'strength-high', name: 'Крепче' },],
+             milk: [ { id: 'milk-standard', name: 'Обычное', priceMod: 0, default: true },{ id: 'milk-skim', name: 'Обезжиренное', priceMod: 0 },{ id: 'milk-almond', name: 'Миндальное', priceMod: 150 },{ id: 'milk-soy', name: 'Соевое', priceMod: 100 },],
+             syrup: [ { id: 'syrup-none', name: 'Без сиропа', priceMod: 0, default: true },{ id: 'syrup-vanilla', name: 'Ванильный', priceMod: 100 },{ id: 'syrup-caramel', name: 'Карамельный', priceMod: 100 },{ id: 'syrup-hazelnut', name: 'Ореховый', priceMod: 120 },]
+        };
 
-        // --- Состояние Приложения --- (как раньше)
-        let currentViewId = 'menu-view';
+        // --- Состояние Приложения ---
+        let currentViewId = 'menu-view'; // Начинаем с меню
         let previousViewId = null;
         let selectedItem = null;
         let currentOrder = [];
@@ -511,457 +422,237 @@
         let currentSearchTerm = '';
         const LOCAL_STORAGE_KEY = 'coffeeShopOrder_v2';
 
-        // --- DOM Элементы --- (как раньше)
-        const views = { /* ... */ };
-        const menuGrid = document.getElementById('menu-grid');
-        // ... (все остальные DOM элементы как в предыдущем полном коде)
-        const categoryFiltersContainer = document.getElementById('category-filters');
-         const menuSearchInput = document.getElementById('menu-search');
-         const customizationItemName = document.getElementById('customization-item-name');
-         const currentItemPriceDisplay = document.getElementById('current-item-price');
-         const customizationOptionsContainers = {
-             volume: document.getElementById('volume-options'),
-             sweetness: document.getElementById('sweetness-options'),
-             strength: document.getElementById('strength-options'),
-             milk: document.getElementById('milk-options'),
-             syrup: document.getElementById('syrup-options'),
-         };
-         const customizationOptionSections = {
-             volume: document.getElementById('volume-option-section'),
-             sweetness: document.getElementById('sweetness-option-section'),
-             strength: document.getElementById('strength-option-section'),
-             milk: document.getElementById('milk-option-section'),
-             syrup: document.getElementById('syrup-option-section'),
-         };
-         const orderItemsList = document.getElementById('order-items-list');
-         const orderTotalDisplay = document.getElementById('order-total');
-         const qrCodeContainer = document.getElementById('qr-code');
-         const orderStatusDisplay = document.getElementById('order-status');
-         const statusLoader = document.getElementById('status-loader');
-         const qrAndStatusSection = document.getElementById('qr-and-status');
-         const orderContent = document.getElementById('order-content');
-         const emptyOrderMessage = document.getElementById('empty-order-message');
-         const cartCountSpan = document.getElementById('cart-count');
-         const goToCartBtn = document.getElementById('go-to-cart-btn');
-         const backToMenuBtn = document.getElementById('back-to-menu-btn');
-         const addUpdateOrderBtn = document.getElementById('add-update-order-btn');
-         const clearOrderBtn = document.getElementById('clear-order-btn');
-         const checkoutBtn = document.getElementById('checkout-btn');
-         const newOrderBtn = document.getElementById('new-order-btn');
+        // --- DOM Элементы ---
+        const views = {
+            'menu-view': document.getElementById('menu-view'),
+            'customization-view': document.getElementById('customization-view'),
+            'order-view': document.getElementById('order-view')
+        };
+        console.log("Views object populated:", views); // Диагностика
+        if (!views['menu-view']) console.error("!!! Элемент с id='menu-view' НЕ НАЙДЕН при создании объекта views!");
+        if (!views['customization-view']) console.error("!!! Элемент с id='customization-view' НЕ НАЙДЕН!");
+        if (!views['order-view']) console.error("!!! Элемент с id='order-view' НЕ НАЙДЕН!");
 
-        // --- Helper Функции --- (как раньше)
-        function saveOrderToLocalStorage() { /* ... */ }
-        function loadOrderFromLocalStorage() { /* ... */ }
-        function showTemporaryMessage(message, type = "info") { /* ... */ }
-        function generateOptionsHTML(optionType, availableOptionsData, selectedValueId = null) { /* ... */ }
-        function getCustomizationKey(customizations) { /* ... */ }
-        function getCustomizationString(customizations) { /* ... */ }
+        const menuGrid = document.getElementById('menu-grid');
+        const categoryFiltersContainer = document.getElementById('category-filters');
+        const menuSearchInput = document.getElementById('menu-search');
+        const customizationItemName = document.getElementById('customization-item-name');
+        const currentItemPriceDisplay = document.getElementById('current-item-price');
+        const customizationOptionsContainers = {
+             volume: document.getElementById('volume-options'), sweetness: document.getElementById('sweetness-options'), strength: document.getElementById('strength-options'), milk: document.getElementById('milk-options'), syrup: document.getElementById('syrup-options'),
+         };
+        const customizationOptionSections = {
+             volume: document.getElementById('volume-option-section'), sweetness: document.getElementById('sweetness-option-section'), strength: document.getElementById('strength-option-section'), milk: document.getElementById('milk-option-section'), syrup: document.getElementById('syrup-option-section'),
+        };
+        const orderItemsList = document.getElementById('order-items-list');
+        const orderTotalDisplay = document.getElementById('order-total');
+        const qrCodeContainer = document.getElementById('qr-code');
+        const orderStatusDisplay = document.getElementById('order-status');
+        const statusLoader = document.getElementById('status-loader');
+        const qrAndStatusSection = document.getElementById('qr-and-status');
+        const orderContent = document.getElementById('order-content');
+        const emptyOrderMessage = document.getElementById('empty-order-message');
+        const cartCountSpan = document.getElementById('cart-count');
+        const goToCartBtn = document.getElementById('go-to-cart-btn');
+        const backToMenuBtn = document.getElementById('back-to-menu-btn');
+        const addUpdateOrderBtn = document.getElementById('add-update-order-btn');
+        const clearOrderBtn = document.getElementById('clear-order-btn');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const newOrderBtn = document.getElementById('new-order-btn');
+
+        // --- Helper Функции ---
+        function saveOrderToLocalStorage() { try { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(currentOrder)); } catch (e) { console.error("Ошибка сохранения заказа:", e); } }
+        function loadOrderFromLocalStorage() { try { const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if (saved) { currentOrder = JSON.parse(saved); currentOrder.forEach(item => item.quantity = parseInt(item.quantity) || 1); } else { currentOrder = []; } } catch (e) { console.error("Ошибка загрузки заказа:", e); currentOrder = []; localStorage.removeItem(LOCAL_STORAGE_KEY); } }
+        function showTemporaryMessage(message, type = "info") { const d = document.createElement('div'); d.textContent = message; d.className = `temp-message ${type}`; document.body.appendChild(d); setTimeout(() => d.classList.add('show'), 10); setTimeout(() => { d.classList.remove('show'); setTimeout(() => { if (document.body.contains(d)) document.body.removeChild(d); }, 500); }, 2500); }
+        function generateOptionsHTML(optionType, optionsData, selectedValueId = null) { const c = customizationOptionsContainers[optionType]; if (!c) return; let h = ''; let dc = false; optionsData.forEach(o => { const ichk = selectedValueId ? o.id === selectedValueId : (o.default && !dc); h += `<input type="radio" id="${o.id}" name="${optionType}" value="${o.id}" ${o.priceMod !== undefined ? `data-price-mod="${o.priceMod}"` : ''} ${o.multiplier !== undefined ? `data-multiplier="${o.multiplier}"` : ''} ${ichk ? 'checked' : ''}><label for="${o.id}">${o.name}${o.priceMod > 0 ? ` (+${o.priceMod}₸)` : ''}</label>`; if (ichk) dc = true; }); if (!dc && optionsData.length > 0) { h = h.replace(`id="${optionsData[0].id}"`, `id="${optionsData[0].id}" checked`); } c.innerHTML = h; }
+        function getCustomizationKey(cust) { return Object.keys(cust).sort().map(k => `${k}:${cust[k]}`).join('|'); }
+        function getCustomizationString(cust) { let p = []; for (const k in cust) { if (customizationData[k]) { const o = customizationData[k].find(opt => opt.id === cust[k]); if (o && !o.default) p.push(o.name); } } if (p.length === 0 && cust.volume) { const v = customizationData.volume.find(opt => opt.id === cust.volume); if(v) p.push(v.name); } return p.length === 0 ? "Стандарт" : p.join(', '); }
 
         // --- Основные Функции ---
 
-        // Показать нужный вид (с улучшенной анимацией) - **ОБНОВЛЕНО**
+        // Показать нужный вид (с улучшенной анимацией)
         function showView(viewIdToShow) {
-             if (currentViewId === viewIdToShow && views[currentViewId]?.classList.contains('active')) {
-                 return; // Не переключаться на тот же активный вид
-             }
+            if (currentViewId === viewIdToShow && views[currentViewId]?.classList.contains('active')) { return; }
+            const currentViewElement = views[currentViewId];
+            const nextViewElement = views[viewIdToShow];
+            if (!nextViewElement) { console.error("View ID not found:", viewIdToShow); showView('menu-view'); return; }
+            previousViewId = currentViewId;
+            nextViewElement.style.visibility = 'visible';
+            nextViewElement.classList.remove('exiting');
+            if (currentViewElement && currentViewElement !== nextViewElement) { currentViewElement.classList.add('exiting'); currentViewElement.classList.remove('active'); }
+            requestAnimationFrame(() => { nextViewElement.classList.add('active'); currentViewId = viewIdToShow; });
+            if (currentViewElement && currentViewElement !== nextViewElement) { const dur = parseFloat(getComputedStyle(currentViewElement).transitionDuration) * 1000 || 450; setTimeout(() => { if (!currentViewElement.classList.contains('active')) { currentViewElement.classList.remove('exiting'); currentViewElement.style.visibility = 'hidden'; } }, dur); }
+            window.scrollTo(0, 0);
+            if (currentViewId === 'order-view') { updateOrderViewButtons(); } else { newOrderBtn.style.display = 'none'; }
+        }
 
-             const currentViewElement = views[currentViewId];
-             const nextViewElement = views[viewIdToShow];
-
-             if (!nextViewElement) {
-                 console.error("View ID not found:", viewIdToShow);
-                 showView('menu-view'); // Показать меню по умолчанию
-                 return;
-             }
-
-             previousViewId = currentViewId; // Запомнить
-
-             // 1. Сначала делаем новый вид видимым, но в начальной позиции анимации
-             nextViewElement.style.visibility = 'visible'; // Сделать видимым для анимации
-             nextViewElement.classList.remove('exiting'); // Убрать класс ухода, если он был
-
-             // 2. Если есть текущий вид, запускаем его анимацию ухода
-             if (currentViewElement && currentViewElement !== nextViewElement) {
-                 currentViewElement.classList.add('exiting'); // Начать анимацию ухода
-                 currentViewElement.classList.remove('active'); // Снять активность
-             }
-
-             // 3. Устанавливаем новый вид как активный (это запустит его анимацию прихода)
-             requestAnimationFrame(() => { // Даем браузеру кадр на пересчет стилей
-                 nextViewElement.classList.add('active');
-                 currentViewId = viewIdToShow; // Обновляем ID текущего вида
-             });
-
-             // 4. После завершения анимации ухода старого вида, окончательно его скрыть
-             if (currentViewElement && currentViewElement !== nextViewElement) {
-                 const transitionDuration = parseFloat(getComputedStyle(currentViewElement).transitionDuration) * 1000 || 450; // Получаем длительность из CSS или дефолт
-                 setTimeout(() => {
-                     if (!currentViewElement.classList.contains('active')) { // Проверяем, что он все еще не активен
-                         currentViewElement.classList.remove('exiting');
-                         currentViewElement.style.visibility = 'hidden'; // Окончательно скрыть
-                     }
-                 }, transitionDuration);
-             }
-
-             window.scrollTo(0, 0); // Прокрутка вверх
-
-             if (currentViewId === 'order-view') {
-                 updateOrderViewButtons();
-             } else {
-                 newOrderBtn.style.display = 'none';
-             }
-         }
-
-        // Рендер меню (с анимацией stagger) - **ОБНОВЛЕНО**
+        // Рендер меню (с анимацией stagger)
         function renderMenu() {
-            menuGrid.innerHTML = ''; // Очистка
-
-            // Фильтрация
+            menuGrid.innerHTML = '';
             let filteredItems = menuData;
-            if (currentFilterCategory !== 'all') {
-                filteredItems = menuData.filter(item => item.category === currentFilterCategory);
-            }
+            if (currentFilterCategory !== 'all') { filteredItems = menuData.filter(item => item.category === currentFilterCategory); }
             const searchTerm = currentSearchTerm.toLowerCase().trim();
-            if (searchTerm) {
-                filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(searchTerm));
-            }
-
-            if (filteredItems.length === 0) {
-                menuGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #777;">Ничего не найдено.</p>';
-                return;
-            }
-
+            if (searchTerm) { filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(searchTerm)); }
+            if (filteredItems.length === 0) { menuGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #777;">Ничего не найдено.</p>'; return; }
             filteredItems.forEach((item, index) => {
                 const div = document.createElement('div');
-                div.classList.add('menu-item', 'item-enter'); // Добавляем начальный класс анимации
+                div.classList.add('menu-item', 'item-enter');
                 div.dataset.itemId = item.id;
-                // div.classList.toggle('disabled', !item.inStock); // Если будет проверка наличия
-
-                div.innerHTML = `
-                    <img src="${item.image}" alt="${item.name}" loading="lazy">
-                    <div>
-                         <h3>${item.name}</h3>
-                         <span class="price">${item.basePrice}₸</span>
-                    </div>
-                `;
-
-                 // if (item.inStock) {
-                     div.addEventListener('click', () => {
-                        if (item.customizable) {
-                             handleMenuItemClick(item.id);
-                        } else {
-                             addNonCustomizableItem(item.id);
-                        }
-                    });
-                 // }
-
-                 menuGrid.appendChild(div);
-
-                 // Запускаем анимацию с задержкой
-                 setTimeout(() => {
-                     div.style.transitionDelay = `${index * 0.06}s`;
-                     div.classList.remove('item-enter');
-                 }, 50);
-
-                 // Очистка inline стиля задержки (опционально)
-                 const animationDuration = parseFloat(getComputedStyle(div).transitionDuration) * 1000 || 400;
-                 setTimeout(() => {
-                     div.style.transitionDelay = '';
-                 }, animationDuration + index * 60);
+                div.innerHTML = `<img src="${item.image}" alt="${item.name}" loading="lazy"><div><h3>${item.name}</h3><span class="price">${item.basePrice}₸</span></div>`;
+                div.addEventListener('click', () => { if (item.customizable) { handleMenuItemClick(item.id); } else { addNonCustomizableItem(item.id); } });
+                menuGrid.appendChild(div);
+                setTimeout(() => { div.style.transitionDelay = `${index * 0.06}s`; div.classList.remove('item-enter'); }, 50);
+                const animDur = parseFloat(getComputedStyle(div).transitionDuration) * 1000 || 400;
+                setTimeout(() => { div.style.transitionDelay = ''; }, animDur + index * 60);
             });
         }
 
-        // Добавление некастомизируемого товара (как раньше)
-        function addNonCustomizableItem(itemId) { /* ... */
-            const itemData = menuData.find(i => i.id === itemId);
-             if (!itemData) return;
-
-             const customizationKey = 'non-customizable';
-             const existingItem = currentOrder.find(orderItem => orderItem.id === itemId && orderItem.customizationKey === customizationKey);
-
-             if (existingItem) {
-                 existingItem.quantity++;
-             } else {
-                 const orderItem = {
-                     orderItemId: `item-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                     id: itemData.id, name: itemData.name, price: itemData.basePrice, quantity: 1,
-                     customizations: {}, customizationKey: customizationKey, customizationString: ''
-                 };
-                 // Вызываем логику добавления с анимацией
-                 addNewItemToOrderLogic(orderItem, false); // false - не переходить в меню
-             }
-             // Обновляем только данные, без перехода и сообщения (сообщение ниже)
-             // updateOrderSummary(); // Вызовется в addNewItemToOrderLogic
-             // saveOrderToLocalStorage(); // Вызовется в addNewItemToOrderLogic
-             showTemporaryMessage(`${itemData.name} добавлен в корзину`, "success");
+        // Логика добавления НОВОГО элемента с анимацией
+        function addNewItemToOrderLogic(orderItem, navigateToMenu = true) {
+            currentOrder.push(orderItem);
+            saveOrderToLocalStorage();
+            updateOrderSummary(); // Обновляем DOM
+            requestAnimationFrame(() => {
+                const liElement = orderItemsList.querySelector(`li[data-order-item-id="${orderItem.orderItemId}"]`);
+                if (liElement) {
+                    liElement.classList.add('item-enter');
+                    requestAnimationFrame(() => { liElement.classList.remove('item-enter'); });
+                }
+            });
+            if (navigateToMenu) { showView('menu-view'); }
         }
 
-        // Клик по кастомизируемому товару в меню (как раньше)
-        function handleMenuItemClick(itemId) { /* ... */
-            const item = menuData.find(i => i.id === itemId);
-             if (!item || !item.customizable) return;
-             selectedItem = { ...item };
-             editingOrderItemId = null;
-             addUpdateOrderBtn.textContent = "Добавить в заказ";
-             Object.keys(customizationOptionSections).forEach(optionType => {
-                 const section = customizationOptionSections[optionType];
-                 const container = customizationOptionsContainers[optionType];
-                 const isAvailable = selectedItem.options.includes(optionType);
-                 section.classList.toggle('visible', isAvailable);
-                 if (isAvailable && container && customizationData[optionType]) {
-                      generateOptionsHTML(optionType, customizationData[optionType]);
-                 } else if (container) {
-                     container.innerHTML = '';
-                 }
-             });
-             customizationItemName.textContent = `Настройте: ${selectedItem.name}`;
-             updateCustomizationPrice();
-             showView('customization-view');
+        // Добавление некастомизируемого товара
+        function addNonCustomizableItem(itemId) {
+            const itemData = menuData.find(i => i.id === itemId); if (!itemData) return;
+            const customizationKey = 'non-customizable';
+            const existingItem = currentOrder.find(o => o.id === itemId && o.customizationKey === customizationKey);
+            if (existingItem) { existingItem.quantity++; saveOrderToLocalStorage(); updateOrderSummary();}
+            else { const orderItem = { orderItemId: `item-${Date.now()}-${Math.random().toString(16).slice(2)}`, id: itemData.id, name: itemData.name, price: itemData.basePrice, quantity: 1, customizations: {}, customizationKey: customizationKey, customizationString: '' }; addNewItemToOrderLogic(orderItem, false); }
+            showTemporaryMessage(`${itemData.name} добавлен`, "success");
         }
 
-        // Обновление цены в окне кастомизации (как раньше)
-        function updateCustomizationPrice() { /* ... */
-            if (!selectedItem && !editingOrderItemId) return 0; // Если нет данных, вернуть 0
+        // Клик по кастомизируемому товару в меню
+        function handleMenuItemClick(itemId) {
+             const item = menuData.find(i => i.id === itemId); if (!item || !item.customizable) return;
+             selectedItem = { ...item }; editingOrderItemId = null; addUpdateOrderBtn.textContent = "Добавить в заказ";
+             Object.keys(customizationOptionSections).forEach(optType => { const s = customizationOptionSections[optType]; const c = customizationOptionsContainers[optType]; const isAvail = selectedItem.options.includes(optType); if (s) s.classList.toggle('visible', isAvail); if (isAvail && c && customizationData[optType]) { generateOptionsHTML(optType, customizationData[optType]); } else if (c) { c.innerHTML = ''; } });
+             customizationItemName.textContent = `Настройте: ${selectedItem.name}`; updateCustomizationPrice(); showView('customization-view');
+        }
 
-             // Определяем базовую цену из selectedItem или из редактируемого item
+        // Обновление цены в окне кастомизации
+        function updateCustomizationPrice() {
+             if (!selectedItem && !editingOrderItemId) return 0;
              const baseItemId = selectedItem?.id || currentOrder.find(i => i.orderItemId === editingOrderItemId)?.id;
-             const baseItemData = menuData.find(m => m.id === baseItemId);
-             if (!baseItemData) return 0; // Не удалось найти базовый товар
-
-             let currentPrice = baseItemData.basePrice;
-             let calculatedPriceMod = 0; // Сумма модификаторов цены (кроме объема)
-             let volumeMultiplier = 1.0;
-
-             Object.keys(customizationOptionsContainers).forEach(optionType => {
-                 const container = customizationOptionsContainers[optionType];
-                 // Проверяем, видим ли мы эту секцию (на случай если JS вызвал update до скрытия)
-                 const sectionIsVisible = customizationOptionSections[optionType]?.classList.contains('visible');
-                 const selectedRadio = container?.querySelector(`input[name="${optionType}"]:checked`);
-
-                 if (sectionIsVisible && selectedRadio) {
-                     const priceMod = parseInt(selectedRadio.dataset.priceMod) || 0;
-                     const multiplier = parseFloat(selectedRadio.dataset.multiplier) || null;
-
-                     calculatedPriceMod += priceMod; // Суммируем модификаторы цены
-                     if (multiplier !== null) {
-                         volumeMultiplier = multiplier; // Запоминаем множитель объема
-                     }
-                 }
-             });
-
-             // Сначала применяем множитель к базовой цене, потом добавляем остальные модификаторы
-             currentPrice = Math.round(baseItemData.basePrice * volumeMultiplier) + calculatedPriceMod;
-
-             currentItemPriceDisplay.textContent = `Цена: ${currentPrice}₸`;
-             return currentPrice;
+             const baseItemData = menuData.find(m => m.id === baseItemId); if (!baseItemData) return 0;
+             let currentPrice = baseItemData.basePrice; let calcPriceMod = 0; let volMultiplier = 1.0;
+             Object.keys(customizationOptionsContainers).forEach(optType => { const sectVisible = customizationOptionSections[optType]?.classList.contains('visible'); const selRadio = customizationOptionsContainers[optType]?.querySelector(`input[name="${optType}"]:checked`); if (sectVisible && selRadio) { const pMod = parseInt(selRadio.dataset.priceMod) || 0; const mult = parseFloat(selRadio.dataset.multiplier) || null; calcPriceMod += pMod; if (mult !== null) volMultiplier = mult; } });
+             currentPrice = Math.round(baseItemData.basePrice * volMultiplier) + calcPriceMod;
+             currentItemPriceDisplay.textContent = `Цена: ${currentPrice}₸`; return currentPrice;
         }
 
-        // Логика добавления НОВОГО элемента с анимацией - **НОВАЯ Функция**
-         function addNewItemToOrderLogic(orderItem, navigateToMenu = true) {
-             currentOrder.push(orderItem);
-             saveOrderToLocalStorage();
-             updateOrderSummary(); // Обновляем DOM
-
-             // Находим элемент и анимируем
-             requestAnimationFrame(() => {
-                 const liElement = orderItemsList.querySelector(`li[data-order-item-id="${orderItem.orderItemId}"]`);
-                 if (liElement) {
-                     liElement.classList.add('item-enter');
-                     requestAnimationFrame(() => {
-                         liElement.classList.remove('item-enter');
-                     });
-                 }
-             });
-             if (navigateToMenu) {
-                showView('menu-view');
-             }
-         }
-
-        // Клик по кнопке "Добавить в заказ" / "Обновить позицию" - **ОБНОВЛЕНО**
+        // Клик по кнопке "Добавить в заказ" / "Обновить позицию"
         function handleAddUpdateItem() {
-             // ... (Сбор кастомизаций, расчет цены и ключа как в предыдущем ответе) ...
-             const currentCustomizations = {};
-             const baseItemId = selectedItem?.id || currentOrder.find(i => i.orderItemId === editingOrderItemId)?.id;
-             const originalItemData = menuData.find(m => m.id === baseItemId);
-             if (!originalItemData) { console.error("Cannot find base item data"); return; }
-             const availableOptions = originalItemData.options || [];
+            const baseItemId = selectedItem?.id || currentOrder.find(i => i.orderItemId === editingOrderItemId)?.id;
+            const originalItemData = menuData.find(m => m.id === baseItemId); if (!originalItemData) { console.error("Cannot find base item data"); return; }
+            const currentCustomizations = {}; const availableOptions = originalItemData.options || [];
+            availableOptions.forEach(optType => { const cont = customizationOptionsContainers[optType]; const selRadio = cont?.querySelector(`input[name="${optType}"]:checked`); if (selRadio) { currentCustomizations[optType] = selRadio.value; } else if (customizationData[optType]) { const defOpt = customizationData[optType].find(o => o.default); if (defOpt) currentCustomizations[optType] = defOpt.id; } });
+            const finalPrice = updateCustomizationPrice(); const customizationKey = getCustomizationKey(currentCustomizations); const customizationString = getCustomizationString(currentCustomizations);
 
-             availableOptions.forEach(optionType => {
-                 const container = customizationOptionsContainers[optionType];
-                 const selectedRadio = container?.querySelector(`input[name="${optionType}"]:checked`);
-                 if (selectedRadio) {
-                     currentCustomizations[optionType] = selectedRadio.value;
-                 } else if (customizationData[optionType]) { // Если опции нет в DOM, берем дефолт
-                     const defaultOption = customizationData[optionType].find(opt => opt.default);
-                     if (defaultOption) currentCustomizations[optionType] = defaultOption.id;
-                 }
-             });
-
-             const finalPrice = updateCustomizationPrice();
-             const customizationKey = getCustomizationKey(currentCustomizations);
-             const customizationString = getCustomizationString(currentCustomizations);
-
-
-             if (editingOrderItemId) {
-                 // --- Режим Обновления ---
+            if (editingOrderItemId) {
                  const itemToUpdate = currentOrder.find(item => item.orderItemId === editingOrderItemId);
-                 if (itemToUpdate) {
-                     itemToUpdate.price = finalPrice;
-                     itemToUpdate.customizations = currentCustomizations;
-                     itemToUpdate.customizationKey = customizationKey;
-                     itemToUpdate.customizationString = customizationString;
-                 }
-                 editingOrderItemId = null;
-                 addUpdateOrderBtn.textContent = "Добавить в заказ";
-                 saveOrderToLocalStorage();
-                 updateOrderSummary();
-                 showView('order-view');
-                 showTemporaryMessage("Позиция обновлена", "success");
-
-             } else if (selectedItem) {
-                 // --- Режим Добавления ---
-                 const existingItem = currentOrder.find(orderItem =>
-                     orderItem.id === selectedItem.id && orderItem.customizationKey === customizationKey
-                 );
-
-                 if (existingItem) {
-                     existingItem.quantity++;
-                     saveOrderToLocalStorage();
-                     updateOrderSummary(); // Обновить количество в существующем элементе
-                     showView('menu-view'); // Возвращаемся в меню
-                     showTemporaryMessage(`${selectedItem.name} добавлен в корзину (кол-во увеличено)`, "success");
-                 } else {
-                     // Добавляем новый элемент через новую функцию
-                     const orderItem = {
-                         orderItemId: `item-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                         id: selectedItem.id, name: selectedItem.name, price: finalPrice, quantity: 1,
-                         customizations: currentCustomizations, customizationKey: customizationKey, customizationString: customizationString
-                     };
-                     addNewItemToOrderLogic(orderItem, true); // true - перейти в меню после добавления
-                     showTemporaryMessage(`${selectedItem.name} добавлен в корзину`, "success");
-                 }
-                 selectedItem = null; // Сбрасываем выбранный итем
-             }
-         }
-
-        // Обновление отображения корзины (как раньше, использует новый HTML для li)
-        function updateOrderSummary() { /* ... как в пред. ответе, рендерит li с кнопками + - Edit и т.д. ... */
-             orderItemsList.innerHTML = ''; // Очистка
-             let total = 0;
-
-             if (currentOrder.length === 0) {
-                  orderContent.style.display = 'none';
-                  emptyOrderMessage.style.display = 'block';
-             } else {
-                  orderContent.style.display = 'block';
-                  emptyOrderMessage.style.display = 'none';
-
-                  currentOrder.forEach(item => {
-                      const li = document.createElement('li');
-                      li.dataset.orderItemId = item.orderItemId; // Устанавливаем ID
-
-                      li.innerHTML = `
-                         <div class="item-details">
-                             <span class="item-name">${item.name}</span>
-                             ${item.customizationString ? `<span class="item-customizations">${item.customizationString}</span>` : ''}
-                         </div>
-                         <div class="item-controls">
-                              <div class="quantity-controls">
-                                  <button class="btn-quantity btn-decrease" data-id="${item.orderItemId}" title="Уменьшить">-</button>
-                                  <span class="item-quantity">${item.quantity}</span>
-                                  <button class="btn-quantity btn-increase" data-id="${item.orderItemId}" title="Увеличить">+</button>
-                              </div>
-                              <span class="item-price">${item.price * item.quantity}₸</span>
-                              ${menuData.find(m => m.id === item.id)?.customizable ? // Кнопка Edit только для кастомизируемых
-                                 `<button class="btn-edit-item" data-id="${item.orderItemId}" title="Изменить">✏️</button>` :
-                                 '<span style="width: 24px; display: inline-block;"></span>' // Пустышка для выравнивания
-                              }
-                              <button class="btn-remove-item" data-id="${item.orderItemId}" title="Удалить позицию">×</button>
-                         </div>
-                     `;
-                      orderItemsList.appendChild(li);
-                      total += item.price * item.quantity;
-                  });
-                  attachCartItemListeners(); // Навешиваем обработчики
-              }
-             orderTotalDisplay.textContent = `Общая сумма: ${total}₸`;
-             cartCountSpan.textContent = currentOrder.reduce((sum, item) => sum + item.quantity, 0);
-             if (currentViewId === 'order-view') {
-                 updateOrderViewButtons();
-             }
+                 if (itemToUpdate) { itemToUpdate.price = finalPrice; itemToUpdate.customizations = currentCustomizations; itemToUpdate.customizationKey = customizationKey; itemToUpdate.customizationString = customizationString; }
+                 editingOrderItemId = null; addUpdateOrderBtn.textContent = "Добавить в заказ"; saveOrderToLocalStorage(); updateOrderSummary(); showView('order-view'); showTemporaryMessage("Позиция обновлена", "success");
+            } else if (selectedItem) {
+                 const existingItem = currentOrder.find(o => o.id === selectedItem.id && o.customizationKey === customizationKey);
+                 if (existingItem) { existingItem.quantity++; saveOrderToLocalStorage(); updateOrderSummary(); showTemporaryMessage(`${selectedItem.name} добавлен (кол-во увеличено)`, "success"); }
+                 else { const orderItem = { orderItemId: `item-${Date.now()}-${Math.random().toString(16).slice(2)}`, id: selectedItem.id, name: selectedItem.name, price: finalPrice, quantity: 1, customizations: currentCustomizations, customizationKey: customizationKey, customizationString: customizationString }; addNewItemToOrderLogic(orderItem, true); showTemporaryMessage(`${selectedItem.name} добавлен`, "success"); }
+                 selectedItem = null; if (!existingItem) return; // Не переходить в меню если увеличили кол-во
+                 showView('menu-view'); // Переход в меню только если это был первый раз
+            }
         }
 
-        // Установка обработчиков на элементы корзины (как раньше)
-        function attachCartItemListeners() { /* ... */ }
-        // Увеличение количества (как раньше)
-        function increaseQuantity(orderItemId) { /* ... */ }
-        // Уменьшение количества (как раньше)
-        function decreaseQuantity(orderItemId) { /* ... */ }
+        // Обновление отображения корзины
+        function updateOrderSummary() {
+             orderItemsList.innerHTML = ''; let total = 0;
+             if (currentOrder.length === 0) { orderContent.style.display = 'none'; emptyOrderMessage.style.display = 'block'; }
+             else { orderContent.style.display = 'block'; emptyOrderMessage.style.display = 'none'; currentOrder.forEach(item => { const li = document.createElement('li'); li.dataset.orderItemId = item.orderItemId; li.innerHTML = `<div class="item-details"><span class="item-name">${item.name}</span>${item.customizationString ? `<span class="item-customizations">${item.customizationString}</span>` : ''}</div><div class="item-controls"><div class="quantity-controls"><button class="btn-quantity btn-decrease" data-id="${item.orderItemId}" title="Уменьшить">-</button><span class="item-quantity">${item.quantity}</span><button class="btn-quantity btn-increase" data-id="${item.orderItemId}" title="Увеличить">+</button></div><span class="item-price">${item.price * item.quantity}₸</span>${menuData.find(m => m.id === item.id)?.customizable ? `<button class="btn-edit-item" data-id="${item.orderItemId}" title="Изменить">✏️</button>` : '<span style="width: 24px; display: inline-block;"></span>'}<button class="btn-remove-item" data-id="${item.orderItemId}" title="Удалить позицию">×</button></div>`; orderItemsList.appendChild(li); total += item.price * item.quantity; }); attachCartItemListeners(); }
+             orderTotalDisplay.textContent = `Общая сумма: ${total}₸`; cartCountSpan.textContent = currentOrder.reduce((sum, item) => sum + item.quantity, 0);
+             if (currentViewId === 'order-view') { updateOrderViewButtons(); }
+        }
 
-        // Удаление элемента из заказа (с улучшенной анимацией) - **ОБНОВЛЕНО**
+        // Установка обработчиков на элементы корзины
+        function attachCartItemListeners() { orderItemsList.querySelectorAll('.btn-decrease').forEach(b => b.onclick = () => decreaseQuantity(b.dataset.id)); orderItemsList.querySelectorAll('.btn-increase').forEach(b => b.onclick = () => increaseQuantity(b.dataset.id)); orderItemsList.querySelectorAll('.btn-edit-item').forEach(b => b.onclick = () => handleEditItem(b.dataset.id)); orderItemsList.querySelectorAll('.btn-remove-item').forEach(b => b.onclick = () => removeItemFromOrder(b.dataset.id)); }
+        // Увеличение/Уменьшение количества
+        function increaseQuantity(id) { const i = currentOrder.find(it => it.orderItemId === id); if (i) { i.quantity++; saveOrderToLocalStorage(); updateOrderSummary(); } }
+        function decreaseQuantity(id) { const i = currentOrder.find(it => it.orderItemId === id); if (i) { i.quantity--; if (i.quantity <= 0) { removeItemFromOrder(id); } else { saveOrderToLocalStorage(); updateOrderSummary(); } } }
+
+        // Удаление элемента из заказа (с улучшенной анимацией)
         function removeItemFromOrder(orderItemIdToRemove) {
             const itemIndex = currentOrder.findIndex(item => item.orderItemId === orderItemIdToRemove);
             if (itemIndex > -1) {
                 const liElement = orderItemsList.querySelector(`li[data-order-item-id="${orderItemIdToRemove}"]`);
-                if (liElement) {
-                    liElement.classList.add('item-leaving'); // Добавляем класс ухода
-                    const animationDuration = parseFloat(getComputedStyle(liElement).transitionDuration) * 1000 || 450; // Получаем длительность из CSS
-                    // Удаляем данные и перерисовываем ПОСЛЕ анимации
-                    setTimeout(() => {
-                        currentOrder.splice(itemIndex, 1); // Удаляем из массива
-                        saveOrderToLocalStorage();
-                        // Перерисовываем ВСЮ корзину, чтобы пересчитать итоги и т.д.
-                        updateOrderSummary();
-                        showTemporaryMessage("Позиция удалена", "info");
-                        // Важно! updateOrderSummary() уже перерисовала список без удаленного элемента,
-                        // поэтому дополнительно удалять liElement из DOM не нужно.
-                    }, animationDuration);
-                } else {
-                    // Если элемента нет в DOM (маловероятно), удаляем сразу
-                    currentOrder.splice(itemIndex, 1);
-                    saveOrderToLocalStorage();
-                    updateOrderSummary();
-                    showTemporaryMessage("Позиция удалена", "info");
-                }
+                if (liElement) { liElement.classList.add('item-leaving'); const dur = parseFloat(getComputedStyle(liElement).transitionDuration) * 1000 || 450; setTimeout(() => { currentOrder.splice(itemIndex, 1); saveOrderToLocalStorage(); updateOrderSummary(); showTemporaryMessage("Позиция удалена", "info"); }, dur); }
+                else { currentOrder.splice(itemIndex, 1); saveOrderToLocalStorage(); updateOrderSummary(); showTemporaryMessage("Позиция удалена", "info"); }
             }
         }
 
-        // Клик по кнопке "Изменить" в корзине (как раньше)
-        function handleEditItem(orderItemId) { /* ... */ }
-        // Очистка заказа (как раньше)
-        function handleClearOrder() { /* ... */ }
-        // Оформление заказа (как раньше)
-        function handleCheckout() { /* ... */ }
-        // Симуляция статуса (как раньше)
-        function simulateOrderStatus() { /* ... */ }
-        // Создание нового заказа (как раньше)
-        function handleNewOrder() { /* ... */ }
-        // Обновление состояния кнопок в ВИДЕ ЗАКАЗА (как раньше)
-        function updateOrderViewButtons(isOrderPlaced = false) { /* ... */ }
+        // Клик по кнопке "Изменить" в корзине
+        function handleEditItem(orderItemId) {
+             const itemToEdit = currentOrder.find(item => item.orderItemId === orderItemId); if (!itemToEdit) return;
+             const originalMenuItem = menuData.find(m => m.id === itemToEdit.id); if (!originalMenuItem || !originalMenuItem.customizable) return;
+             editingOrderItemId = orderItemId; selectedItem = { ...originalMenuItem }; addUpdateOrderBtn.textContent = "Обновить позицию";
+             Object.keys(customizationOptionSections).forEach(optType => { const s = customizationOptionSections[optType]; const c = customizationOptionsContainers[optType]; const isAvail = selectedItem.options.includes(optType); if (s) s.classList.toggle('visible', isAvail); if (isAvail && c && customizationData[optType]) { generateOptionsHTML(optType, customizationData[optType], itemToEdit.customizations[optType]); } else if (c) { c.innerHTML = ''; } });
+             customizationItemName.textContent = `Изменить: ${itemToEdit.name}`; updateCustomizationPrice(); showView('customization-view');
+        }
+
+        // Очистка заказа
+        function handleClearOrder() { if (currentOrder.length > 0) { if (confirm("Уверены?")) { currentOrder = []; saveOrderToLocalStorage(); updateOrderSummary(); qrAndStatusSection.style.display = 'none'; orderStatusDisplay.textContent = 'Ожидание...'; orderStatusDisplay.className = ''; statusLoader.style.display = 'none'; showTemporaryMessage("Заказ очищен", "info"); updateOrderViewButtons(); } } else { showTemporaryMessage("Заказ уже пуст", "info"); } }
+        // Оформление заказа
+        function handleCheckout() { if (currentOrder.length === 0) { showTemporaryMessage("Заказ пуст!", "error"); return; } const qrData = JSON.stringify({ orderId: `WEB-${Date.now()}`, items: currentOrder.map(i => ({ name: i.name, qty: i.quantity, cust: i.customizationString || 'Стд', price: i.price, total: i.price * i.quantity })), total: currentOrder.reduce((s, i) => s + (i.price * i.quantity), 0) }); qrCodeContainer.innerHTML = ''; try { new QRCode(qrCodeContainer, { text: qrData, width: 160, height: 160, colorDark : "#000", colorLight : "#fff", correctLevel : QRCode.CorrectLevel.H }); } catch (e) { console.error("QR Error:", e); qrCodeContainer.innerHTML = '<p style="color:red;">QR Error</p>'; } qrAndStatusSection.style.display = 'block'; simulateOrderStatus(); updateOrderViewButtons(true); orderItemsList.style.pointerEvents = 'none'; orderItemsList.querySelectorAll('button').forEach(b => b.disabled = true); showTemporaryMessage("Заказ оформлен!", "success"); }
+        // Симуляция статуса
+        function simulateOrderStatus() { orderStatusDisplay.textContent = 'Принят'; orderStatusDisplay.className = 'status-pending'; statusLoader.style.display = 'block'; setTimeout(() => { if (currentViewId !== 'order-view') return; orderStatusDisplay.textContent = 'Готовится...'; orderStatusDisplay.className = 'status-processing'; }, 4000); setTimeout(() => { if (currentViewId !== 'order-view') return; orderStatusDisplay.textContent = 'Готов!'; orderStatusDisplay.className = 'status-ready'; statusLoader.style.display = 'none'; }, 10000); }
+        // Создание нового заказа
+        function handleNewOrder() { currentOrder = []; selectedItem = null; editingOrderItemId = null; saveOrderToLocalStorage(); updateOrderSummary(); qrCodeContainer.innerHTML = ''; qrAndStatusSection.style.display = 'none'; orderStatusDisplay.textContent = 'Ожидание...'; orderStatusDisplay.className = ''; statusLoader.style.display = 'none'; orderItemsList.style.pointerEvents = 'auto'; showView('menu-view'); }
+        // Обновление состояния кнопок в ВИДЕ ЗАКАЗА
+        function updateOrderViewButtons(isOrderPlaced = false) { if (currentViewId !== 'order-view' && !isOrderPlaced) { clearOrderBtn.style.display = 'none'; checkoutBtn.style.display = 'none'; newOrderBtn.style.display = 'none'; return; } const isEmpty = currentOrder.length === 0; const hasBeenPlaced = isOrderPlaced || qrAndStatusSection.style.display === 'block'; clearOrderBtn.style.display = !isEmpty && !hasBeenPlaced ? 'inline-block' : 'none'; checkoutBtn.style.display = !isEmpty && !hasBeenPlaced ? 'inline-block' : 'none'; newOrderBtn.style.display = hasBeenPlaced ? 'inline-block' : 'none'; emptyOrderMessage.style.display = isEmpty && !hasBeenPlaced ? 'block' : 'none'; orderContent.style.display = (isEmpty && !hasBeenPlaced) ? 'none' : 'block'; if (!hasBeenPlaced) { qrAndStatusSection.style.display = 'none'; orderItemsList.style.pointerEvents = 'auto'; orderItemsList.querySelectorAll('button').forEach(b => b.disabled = false); } else { qrAndStatusSection.style.display = 'block'; orderItemsList.style.pointerEvents = 'none'; orderItemsList.querySelectorAll('button').forEach(b => b.disabled = true); } }
 
 
-        // --- Инициализация Приложения --- (как раньше)
+        // --- Инициализация Приложения ---
         document.addEventListener('DOMContentLoaded', () => {
             loadOrderFromLocalStorage();
             renderMenu();
             updateOrderSummary();
-            // Показываем начальный вид без анимации при первой загрузке
-             views[currentViewId].style.transition = 'none'; // Отключаем переход для первого показа
-             views[currentViewId].classList.add('active');
-             views[currentViewId].style.opacity = '1';
-             views[currentViewId].style.transform = 'translateX(0)';
-             views[currentViewId].style.visibility = 'visible';
-             views[currentViewId].style.position = 'relative';
-             // Возвращаем transition через мгновение
-             setTimeout(() => {
-                if (views[currentViewId]) views[currentViewId].style.transition = '';
-             }, 50);
 
+            console.log("DOMContentLoaded: Trying to set initial view. Current View ID:", currentViewId);
+            console.log("DOMContentLoaded: views[currentViewId] is:", views[currentViewId]);
 
-            // Обработчики фильтров, поиска, опций кастомизации, кнопок (как в пред. ответе)
-            categoryFiltersContainer.addEventListener('click', (e) => { /* ... */ });
-            menuSearchInput.addEventListener('input', (e) => { /* ... */ });
-            Object.values(customizationOptionsContainers).forEach(container => { /* ... */ });
+            if (views[currentViewId]) {
+                try {
+                    // Показываем начальный вид БЕЗ анимации
+                    const initialView = views[currentViewId];
+                    initialView.style.transition = 'none'; // Временно отключаем переход
+                    initialView.classList.add('active');
+                    initialView.style.opacity = '1';
+                    initialView.style.transform = 'translateX(0)';
+                    initialView.style.visibility = 'visible';
+                    initialView.style.position = 'relative';
+                    // Возвращаем transition через мгновение, используя requestAnimationFrame
+                    requestAnimationFrame(() => {
+                         requestAnimationFrame(() => { // Еще один кадр для надежности
+                            if (initialView) initialView.style.transition = '';
+                         });
+                    });
+                } catch (e) { console.error("!!! ОШИБКА при установке стилей начального вида:", e); alert("Ошибка инициализации интерфейса."); }
+            } else {
+                console.error(`!!! Элемент для '${currentViewId}' НЕ НАЙДЕН!`);
+                 if (views['menu-view']) { /* Запасной вариант */ } else { alert("Критическая ошибка: Не найден вид меню."); }
+            }
+
+            // Обработчики событий
+            categoryFiltersContainer.addEventListener('click', (e) => { if (e.target.classList.contains('btn-filter')) { categoryFiltersContainer.querySelector('.active')?.classList.remove('active'); e.target.classList.add('active'); currentFilterCategory = e.target.dataset.category; renderMenu(); } });
+            menuSearchInput.addEventListener('input', (e) => { currentSearchTerm = e.target.value; renderMenu(); });
+            Object.values(customizationOptionsContainers).forEach(c => { if(c) c.addEventListener('change', updateCustomizationPrice); });
             backToMenuBtn.addEventListener('click', () => showView('menu-view'));
             addUpdateOrderBtn.addEventListener('click', handleAddUpdateItem);
             clearOrderBtn.addEventListener('click', handleClearOrder);
@@ -969,9 +660,8 @@
             newOrderBtn.addEventListener('click', handleNewOrder);
             goToCartBtn.addEventListener('click', () => { showView('order-view'); });
 
-            updateOrderViewButtons();
+            updateOrderViewButtons(); // Обновить кнопки для начального вида
         });
-
     </script>
 
 </body>
