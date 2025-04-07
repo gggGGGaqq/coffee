@@ -21,6 +21,7 @@
             --text-color: #333;
             --white-color: #FFFFFF;
             --success-color: #4CAF50;
+            --error-color: #dc3545; /* Красный для ошибок */
             --transition-speed: 0.4s;
             --border-radius: 15px;
         }
@@ -55,7 +56,7 @@
         header {
             background-color: var(--primary-color);
             color: var(--white-color);
-            padding: 15px;
+            padding: 15px 60px 15px 15px; /* Добавили отступ справа для кнопки корзины */
             text-align: center;
             border-radius: 0 0 var(--border-radius) var(--border-radius);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -64,6 +65,7 @@
             top: 0;
             z-index: 100;
             animation: slideDown 0.5s ease-out;
+            position: relative; /* Нужно для абсолютного позиционирования кнопки */
         }
 
         header h1 {
@@ -71,6 +73,45 @@
             font-weight: 600;
             margin: 0;
         }
+
+        /* Кнопка Корзины в шапке */
+        .btn-cart {
+            position: absolute; /* Позиционируем относительно header */
+            top: 50%; /* Центрируем по вертикали */
+            transform: translateY(-50%); /* Корректируем центр */
+            right: 15px;
+            padding: 8px 12px;
+            background-color: var(--accent-color);
+            color: var(--white-color);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.2em; /* Размер иконки */
+            line-height: 1; /* Убираем лишнее пространство */
+            transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
+            display: flex; /* Для выравнивания иконки и счетчика */
+            align-items: center;
+            gap: 5px; /* Пространство между иконкой и счетчиком */
+            z-index: 101; /* Выше шапки, если нужно */
+        }
+
+        .btn-cart:hover {
+            background-color: #c89053; /* Темнее акцентный */
+            transform: translateY(-50%) scale(1.05); /* Небольшое увеличение при наведении */
+        }
+
+        #cart-count {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            font-size: 0.7em; /* Маленький шрифт для счетчика */
+            padding: 2px 6px;
+            border-radius: 10px; /* Делаем круглым */
+            font-weight: bold;
+            min-width: 18px; /* Минимальная ширина даже для 0 */
+            text-align: center;
+            line-height: 1;
+        }
+
 
         /* Секции (Виды) */
         .view {
@@ -204,7 +245,7 @@
             margin-bottom: 20px;
         }
 
-        #order-items-list li {
+         #order-items-list li {
             background-color: var(--secondary-color);
             padding: 12px;
             margin-bottom: 10px;
@@ -214,26 +255,50 @@
             align-items: center;
             flex-wrap: wrap; /* Перенос на новую строку при нехватке места */
             border-left: 5px solid var(--accent-color);
+            animation: fadeIn 0.3s ease-out; /* Анимация добавления */
         }
 
          #order-items-list li .item-details {
             flex-grow: 1; /* Занимает доступное пространство */
             margin-right: 10px; /* Отступ справа */
+            padding-right: 5px; /* Доп отступ от кнопки удаления */
         }
 
          #order-items-list li .item-name {
-             font-weight: bold;
-             color: var(--primary-color);
-             display: block; /* Каждый элемент на новой строке для читаемости */
-         }
+            font-weight: bold;
+            color: var(--primary-color);
+            display: block; /* Каждый элемент на новой строке для читаемости */
+        }
          #order-items-list li .item-customizations {
-             font-size: 0.85em;
-             color: #555;
-             display: block;
-         }
+            font-size: 0.85em;
+            color: #555;
+            display: block;
+            margin-top: 3px;
+        }
          #order-items-list li .item-price {
-             font-weight: bold;
-             white-space: nowrap; /* Предотвращает перенос цены */
+            font-weight: bold;
+            white-space: nowrap; /* Предотвращает перенос цены */
+            margin-left: auto; /* Прижимаем цену и кнопку к правому краю */
+            padding-left: 10px; /* Отступ от кастомизаций */
+        }
+        .btn-remove-item {
+             background: #ff4d4d;
+             color: white;
+             border: none;
+             border-radius: 50%;
+             width: 25px;
+             height: 25px;
+             font-size: 14px;
+             margin-left: 10px;
+             cursor: pointer;
+             line-height: 25px; /* Центрирование крестика */
+             text-align: center;
+             padding: 0;
+             flex-shrink: 0; /* Не сжимать кнопку */
+             transition: background-color 0.3s ease;
+         }
+         .btn-remove-item:hover {
+             background-color: #e60000;
          }
 
 
@@ -264,9 +329,10 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         #qr-code img {
-             display: block;
-             width: 100% !important; /* Убедимся, что QR код заполняет контейнер */
-             height: 100% !important;
+            display: block;
+            width: 100% !important; /* Убедимся, что QR код заполняет контейнер */
+            height: 100% !important;
+            object-fit: contain; /* Чтобы не обрезался */
         }
 
         #order-status-container {
@@ -280,7 +346,7 @@
         #order-status-container h4 {
              color: var(--primary-color);
              margin-bottom: 10px;
-        }
+         }
 
         #order-status {
             font-size: 1.2em;
@@ -344,9 +410,9 @@
             color: #333;
          }
          .btn-back:hover {
-             background-color: #bbb;
-             transform: translateY(-2px);
-             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #bbb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
          }
 
          .btn-confirm {
@@ -354,9 +420,9 @@
             color: var(--white-color);
          }
          .btn-confirm:hover {
-             background-color: #45a049;
-             transform: translateY(-2px);
-             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
          }
 
         /* Анимации */
@@ -394,6 +460,27 @@
             font-style: italic;
          }
 
+         /* Стиль для временных сообщений */
+         .temp-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+         }
+         .temp-message.success { background-color: var(--success-color); color: white; }
+         .temp-message.error { background-color: var(--error-color); color: white; }
+         .temp-message.info { background-color: var(--primary-color); color: white; }
+         .temp-message.show { opacity: 1; }
+
+
         /* Footer */
         footer {
             text-align: center;
@@ -408,6 +495,7 @@
 
     <header>
         <h1>Уютное Кофе</h1>
+        <button id="go-to-cart-btn" class="btn-cart">🛒 <span id="cart-count">0</span></button>
     </header>
 
     <div class="container">
@@ -474,15 +562,16 @@
         <section id="order-view" class="view">
             <h2>Ваш заказ</h2>
 
-             <div id="order-content">
+            <div id="order-content">
                  <ul id="order-items-list">
                      </ul>
-                 <p id="empty-order-message" style="display: none;">Ваш заказ пока пуст. Добавьте что-нибудь из меню!</p>
                  <div id="order-total">Общая сумма: 0₸</div>
-             </div>
+            </div>
 
+            <p id="empty-order-message" style="display: none;">Ваш заказ пока пуст. Добавьте что-нибудь из меню!</p>
 
-            <div id="qr-and-status" style="display: none;"> <div id="qr-code-container">
+            <div id="qr-and-status" style="display: none;">
+                <div id="qr-code-container">
                     <h4>Ваш QR-код для получения заказа</h4>
                     <div id="qr-code"></div>
                 </div>
@@ -490,31 +579,33 @@
                 <div id="order-status-container">
                     <h4>Статус приготовления</h4>
                     <div id="order-status">Ожидание...</div>
-                     <div id="status-loader" class="loader" style="display: none;"></div>
+                    <div id="status-loader" class="loader" style="display: none;"></div>
                 </div>
             </div>
 
             <div class="button-group">
                 <button id="clear-order-btn" class="btn btn-back">Очистить заказ</button>
                 <button id="checkout-btn" class="btn btn-confirm">Оформить заказ</button>
-                 <button id="new-order-btn" class="btn btn-secondary" style="display: none;">Сделать новый заказ</button>
+                <button id="new-order-btn" class="btn btn-secondary" style="display: none;">Сделать новый заказ</button>
             </div>
         </section>
 
-    </div> <footer>
-         © 2025 Уютное Кофе. Приятного аппетита!
-     </footer>
+    </div>
+
+    <footer>
+        © 2025 Уютное Кофе. Приятного аппетита!
+    </footer>
 
     <script>
         // --- Данные Меню ---
         const menuData = [
-            { id: 'espresso', name: 'Эспрессо', basePrice: 500, image: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
-            { id: 'cappuccino', name: 'Капучино', basePrice: 700, image: 'https://images.unsplash.com/photo-1557006094-40e596d98303?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
-            { id: 'latte', name: 'Латте', basePrice: 750, image: 'https://images.unsplash.com/photo-1561882468-91101f L_Zy?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
-            { id: 'americano', name: 'Американо', basePrice: 600, image: 'https://images.unsplash.com/photo-1580933075516-ac7f7767164a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
-            { id: 'mocha', name: 'Мокко', basePrice: 850, image: 'https://images.unsplash.com/photo-1608079778818-a04d8e4b2e4f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+             { id: 'espresso', name: 'Эспрессо', basePrice: 500, image: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+             { id: 'cappuccino', name: 'Капучино', basePrice: 700, image: 'https://images.unsplash.com/photo-1557006094-40e596d98303?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+             { id: 'latte', name: 'Латте', basePrice: 750, image: 'https://images.unsplash.com/photo-1561882468-91101f2L_ZyQ?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' }, // Исправлена ссылка
+             { id: 'americano', name: 'Американо', basePrice: 600, image: 'https://images.unsplash.com/photo-1580933075516-ac7f7767164a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+             { id: 'mocha', name: 'Мокко', basePrice: 850, image: 'https://images.unsplash.com/photo-1608079778818-a04d8e4b2e4f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
              { id: 'raf', name: 'Раф', basePrice: 900, image: 'https://images.unsplash.com/photo-1572498859711-ff8e018124c8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
-        ];
+         ];
 
         // --- Состояние Приложения ---
         let currentView = 'menu-view';
@@ -542,6 +633,8 @@
         const qrAndStatusSection = document.getElementById('qr-and-status');
         const orderContent = document.getElementById('order-content');
         const emptyOrderMessage = document.getElementById('empty-order-message');
+        const goToCartBtn = document.getElementById('go-to-cart-btn'); // Кнопка корзины
+        const cartCountSpan = document.getElementById('cart-count'); // Счетчик на кнопке корзины
 
         // Кнопки
         const backToMenuBtn = document.getElementById('back-to-menu-btn');
@@ -554,27 +647,35 @@
 
         // Показать нужный вид (секцию)
         function showView(viewId) {
-            Object.values(views).forEach(view => view.classList.remove('active'));
-            if (views[viewId]) {
-                views[viewId].classList.add('active');
-                currentView = viewId;
-                 window.scrollTo(0, 0); // Прокрутка вверх при смене вида
-            } else {
-                console.error("View not found:", viewId);
-                 views.menu.classList.add('active'); // Возврат в меню по умолчанию
-                 currentView = 'menu';
+            const targetViewKey = Object.keys(views).find(key => views[key].id === viewId);
+
+            if (!targetViewKey) {
+                console.error("View ID not found in views object:", viewId);
+                // По умолчанию показываем меню, если запрошенный вид не найден
+                views.menu.classList.add('active');
+                currentView = views.menu.id;
+                window.scrollTo(0, 0);
+                updateOrderViewButtons(); // Обновить кнопки для вида меню
+                return; // Выходим, чтобы не удалять active с меню
             }
 
-             // Управляем видимостью кнопок оформления/очистки/нового заказа
-             if (viewId === 'order') {
+            Object.values(views).forEach(view => view.classList.remove('active'));
+            views[targetViewKey].classList.add('active');
+            currentView = viewId;
+            window.scrollTo(0, 0); // Прокрутка вверх при смене вида
+
+            // Управляем видимостью кнопок оформления/очистки/нового заказа ТОЛЬКО для вида заказа
+            if (currentView === 'order-view') {
                 updateOrderViewButtons();
-             } else {
-                 checkoutBtn.style.display = 'inline-block';
-                 clearOrderBtn.style.display = 'inline-block';
+            } else {
+                // Сбрасываем специфичные для корзины стили/состояния, если мы *не* в корзине
+                 // checkoutBtn.style.display = 'inline-block'; // Не нужно, управляется в updateOrderViewButtons
+                 // clearOrderBtn.style.display = 'inline-block';// Не нужно, управляется в updateOrderViewButtons
                  newOrderBtn.style.display = 'none';
-                 qrAndStatusSection.style.display = 'none'; // Скрыть QR/статус при выходе из корзины
-             }
+                 // qrAndStatusSection.style.display = 'none'; // Это лучше делать при очистке/новом заказе
+            }
         }
+
 
         // Рендер меню
         function renderMenu() {
@@ -584,7 +685,7 @@
                 div.classList.add('menu-item');
                 div.dataset.itemId = item.id; // Сохраняем ID для обработки клика
                 div.innerHTML = `
-                    <img src="${item.image}" alt="${item.name}">
+                    <img src="${item.image}" alt="${item.name}" loading="lazy">
                     <div>
                          <h3>${item.name}</h3>
                          <span class="price">${item.basePrice}₸</span>
@@ -605,9 +706,9 @@
                 document.getElementById('strength-standard').checked = true;
                 document.getElementById('volume-small').checked = true;
 
-                customizationItemName.textContent = Настройте: ${selectedItem.name};
+                customizationItemName.textContent = `Настройте: ${selectedItem.name}`;
                 updateCustomizationPrice(); // Показываем базовую цену (с учетом дефолтов)
-                showView('customization');
+                showView('customization-view');
             }
         }
 
@@ -625,7 +726,7 @@
             // Цена = (Базовая цена * Множитель объема) + Модификатор сладости
              const currentPrice = Math.round((basePrice * volumeMultiplier) + sweetnessMod);
 
-            currentItemPriceDisplay.textContent = Цена: ${currentPrice}₸;
+            currentItemPriceDisplay.textContent = `Цена: ${currentPrice}₸`;
         }
 
         // Добавление настроенного напитка в заказ
@@ -643,7 +744,7 @@
 
             orderCounter++; // Увеличиваем счетчик для уникального ID
              const orderItem = {
-                 orderItemId: item-${Date.now()}-${orderCounter}, // Уникальный ID для элемента в заказе
+                 orderItemId: `item-${Date.now()}-${orderCounter}`, // Уникальный ID для элемента в заказе
                  id: selectedItem.id,
                  name: selectedItem.name,
                  price: finalPrice,
@@ -655,97 +756,84 @@
              };
 
             currentOrder.push(orderItem);
-            // console.log("Order updated:", currentOrder); // Для дебага
-
-            updateOrderSummary();
-             showView('menu'); // Возвращаемся в меню после добавления
-             // Можно добавить уведомление об успешном добавлении
-             showTemporaryMessage("Добавлено в корзину!", "success");
+            updateOrderSummary(); // Обновляем корзину и счетчик
+             showView('menu-view'); // Возвращаемся в меню после добавления
+            showTemporaryMessage("Добавлено в корзину!", "success");
         }
 
-        // Обновление отображения корзины
+        // Обновление отображения корзины и счетчика
         function updateOrderSummary() {
             orderItemsList.innerHTML = ''; // Очищаем список
             let total = 0;
 
             if (currentOrder.length === 0) {
-                 emptyOrderMessage.style.display = 'block';
-                 orderContent.style.display = 'none'; // Скрываем список и тотал
+                emptyOrderMessage.style.display = 'block';
+                orderContent.style.display = 'none'; // Скрываем список и тотал
             } else {
-                 emptyOrderMessage.style.display = 'none';
-                 orderContent.style.display = 'block'; // Показываем список и тотал
+                emptyOrderMessage.style.display = 'none';
+                orderContent.style.display = 'block'; // Показываем список и тотал
 
-                 currentOrder.forEach((item, index) => {
-                     const li = document.createElement('li');
-                     li.innerHTML = `
-                         <div class="item-details">
+                currentOrder.forEach((item) => { // index не используется, убрал
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="item-details">
                             <span class="item-name">${item.name}</span>
                             <span class="item-customizations">
                                 ${item.customizations.volume}, ${item.customizations.sweetness}, ${item.customizations.strength}
                             </span>
-                         </div>
-                         <span class="item-price">${item.price}₸</span>
-                         <button class="btn-remove-item" data-order-item-id="${item.orderItemId}" style="background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; font-size: 14px; margin-left: 10px; cursor: pointer; line-height: 25px; text-align: center;">×</button>
-                     `;
-                     // Добавляем обработчик для кнопки удаления
-                     li.querySelector('.btn-remove-item').addEventListener('click', (e) => {
-                         const itemIdToRemove = e.target.getAttribute('data-order-item-id');
-                         removeItemFromOrder(itemIdToRemove);
-                     });
-                     orderItemsList.appendChild(li);
-                     total += item.price;
-                 });
+                        </div>
+                        <span class="item-price">${item.price}₸</span>
+                        <button class="btn-remove-item" data-order-item-id="${item.orderItemId}" title="Удалить позицию">×</button>
+                    `;
+                    // Добавляем обработчик для кнопки удаления
+                    li.querySelector('.btn-remove-item').addEventListener('click', (e) => {
+                        const itemIdToRemove = e.target.getAttribute('data-order-item-id');
+                        removeItemFromOrder(itemIdToRemove);
+                    });
+                    orderItemsList.appendChild(li);
+                    total += item.price;
+                });
              }
 
-            orderTotalDisplay.textContent = Общая сумма: ${total}₸;
-             updateOrderViewButtons(); // Обновляем состояние кнопок в корзине
+            orderTotalDisplay.textContent = `Общая сумма: ${total}₸`;
+            cartCountSpan.textContent = currentOrder.length; // Обновляем счетчик в шапке
+
+            // Обновляем состояние кнопок ТОЛЬКО если текущий вид - корзина
+            if (currentView === 'order-view') {
+                updateOrderViewButtons();
+            }
         }
 
-         // Удаление элемента из заказа
-         function removeItemFromOrder(orderItemIdToRemove) {
+        // Удаление элемента из заказа
+        function removeItemFromOrder(orderItemIdToRemove) {
              currentOrder = currentOrder.filter(item => item.orderItemId !== orderItemIdToRemove);
-             updateOrderSummary();
+             updateOrderSummary(); // Обновляем список, сумму и счетчик
              showTemporaryMessage("Позиция удалена", "info");
-         }
+             // Если после удаления корзина стала пуста и мы в ней находимся, обновить кнопки
+             if (currentView === 'order-view') {
+                 updateOrderViewButtons();
+             }
+        }
 
-         // Показать временное сообщение
-         function showTemporaryMessage(message, type = "info") {
+        // Показать временное сообщение
+        function showTemporaryMessage(message, type = "info") {
             const msgDiv = document.createElement('div');
             msgDiv.textContent = message;
-            msgDiv.style.position = 'fixed';
-            msgDiv.style.bottom = '20px';
-            msgDiv.style.left = '50%';
-            msgDiv.style.transform = 'translateX(-50%)';
-            msgDiv.style.padding = '10px 20px';
-            msgDiv.style.borderRadius = '20px';
-            msgDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-            msgDiv.style.zIndex = '1000';
-            msgDiv.style.opacity = '0';
-            msgDiv.style.transition = 'opacity 0.5s ease';
+            msgDiv.className = `temp-message ${type}`; // Используем классы для стилизации
+            document.body.appendChild(msgDiv);
 
-             if (type === 'success') {
-                 msgDiv.style.backgroundColor = 'var(--success-color)';
-                 msgDiv.style.color = 'white';
-             } else if (type === 'error') {
-                 msgDiv.style.backgroundColor = '#dc3545'; // Красный
-                 msgDiv.style.color = 'white';
-             } else { // info
-                 msgDiv.style.backgroundColor = 'var(--primary-color)';
-                 msgDiv.style.color = 'white';
-             }
+            // Появление
+            setTimeout(() => { msgDiv.classList.add('show'); }, 10);
 
-             document.body.appendChild(msgDiv);
-
-             // Появление
-             setTimeout(() => { msgDiv.style.opacity = '1'; }, 10);
-
-             // Исчезновение
-             setTimeout(() => {
-                 msgDiv.style.opacity = '0';
-                 setTimeout(() => {
-                     document.body.removeChild(msgDiv);
-                 }, 500); // Ждем завершения анимации исчезновения
-             }, 2500); // Показываем 2.5 секунды
+            // Исчезновение
+            setTimeout(() => {
+                msgDiv.classList.remove('show');
+                setTimeout(() => {
+                    if (document.body.contains(msgDiv)) { // Проверка, что элемент еще существует
+                         document.body.removeChild(msgDiv);
+                     }
+                }, 500); // Ждем завершения анимации исчезновения
+            }, 2500); // Показываем 2.5 секунды
          }
 
 
@@ -754,18 +842,19 @@
             if (currentOrder.length > 0) {
                  if (confirm("Вы уверены, что хотите очистить весь заказ?")) {
                      currentOrder = [];
-                     updateOrderSummary();
+                     updateOrderSummary(); // Обновляем все (список, сумму, счетчик)
                      qrAndStatusSection.style.display = 'none'; // Скрываем QR и статус
                      // Сбросить статус, если он был показан
                      orderStatusDisplay.textContent = 'Ожидание...';
                      orderStatusDisplay.className = ''; // Сбросить классы статуса
                      statusLoader.style.display = 'none';
                      showTemporaryMessage("Заказ очищен", "info");
+                     // Обновить кнопки, т.к. мы в виде заказа
+                     updateOrderViewButtons();
                  }
             } else {
                  showTemporaryMessage("Заказ уже пуст", "info");
             }
-             updateOrderViewButtons();
         }
 
         // Оформление заказа
@@ -775,10 +864,9 @@
                 return;
             }
 
-             // 1. Генерируем данные для QR (упрощенно - просто JSON заказа)
-             // В реальном приложении здесь мог бы быть ID заказа с сервера
+            // 1. Генерируем данные для QR
              const qrData = JSON.stringify({
-                 orderId: WEB-${Date.now()}, // Псевдо-ID заказа
+                 orderId: `WEB-${Date.now()}`, // Псевдо-ID заказа
                  items: currentOrder.map(item => ({ // Берем только нужные данные
                      name: item.name,
                      volume: item.customizations.volume,
@@ -813,12 +901,10 @@
             // 4. Симулируем статус приготовления
             simulateOrderStatus();
 
-            // 5. Обновляем кнопки
-            checkoutBtn.style.display = 'none';
-             clearOrderBtn.style.display = 'none';
-            newOrderBtn.style.display = 'inline-block';
+            // 5. Обновляем кнопки в виде заказа
+             updateOrderViewButtons(true); // Передаем флаг, что заказ оформлен
 
-             // Можно сделать элементы заказа некликабельными или скрыть кнопки удаления
+            // Можно сделать элементы заказа некликабельными или скрыть кнопки удаления
              orderItemsList.querySelectorAll('.btn-remove-item').forEach(btn => btn.style.display = 'none');
              orderItemsList.style.pointerEvents = 'none'; // Блокируем взаимодействие со списком
 
@@ -832,11 +918,13 @@
             statusLoader.style.display = 'block'; // Показываем загрузчик
 
             setTimeout(() => {
+                 if (currentView !== 'order-view') return; // Не обновлять, если ушли со страницы
                 orderStatusDisplay.textContent = 'Готовится...';
                 orderStatusDisplay.className = 'status-processing'; // Голубой
             }, 4000); // Через 4 секунды
 
             setTimeout(() => {
+                if (currentView !== 'order-view') return; // Не обновлять, если ушли со страницы
                 orderStatusDisplay.textContent = 'Готов к выдаче!';
                 orderStatusDisplay.className = 'status-ready'; // Зеленый
                  statusLoader.style.display = 'none'; // Скрываем загрузчик
@@ -847,7 +935,8 @@
         function handleNewOrder() {
             currentOrder = [];
             selectedItem = null;
-            updateOrderSummary(); // Очистит список и общую сумму
+            orderCounter = 0; // Сбросить счетчик ID тоже можно
+            updateOrderSummary(); // Очистит список, сумму, счетчик
             qrCodeContainer.innerHTML = ''; // Очистить QR
             qrAndStatusSection.style.display = 'none'; // Скрыть секцию QR/статуса
              orderStatusDisplay.textContent = 'Ожидание...';
@@ -855,60 +944,66 @@
              statusLoader.style.display = 'none';
              orderItemsList.style.pointerEvents = 'auto'; // Разблокируем взаимодействие со списком
 
-            showView('menu'); // Переход в меню
-            updateOrderViewButtons(); // Обновляем кнопки (хотя мы уже ушли из вида заказа)
+            showView('menu-view'); // Переход в меню
+            // updateOrderViewButtons(); // Не нужно, т.к. мы уже не в виде заказа
         }
 
-         // Обновление состояния кнопок в корзине
-         function updateOrderViewButtons() {
-             const isOrderEmpty = currentOrder.length === 0;
-             const isOrderPlaced = newOrderBtn.style.display === 'inline-block'; // Проверяем, был ли заказ уже оформлен
+        // Обновление состояния кнопок в корзине
+        // Добавлен параметр isOrderPlaced, чтобы принудительно показать кнопку "Новый заказ" сразу после оформления
+        function updateOrderViewButtons(isOrderPlaced = false) {
+            // Эта функция должна вызываться ТОЛЬКО когда активен вид 'order-view'
+            // или принудительно после checkout
+            if (currentView !== 'order-view' && !isOrderPlaced) return;
 
-             // Кнопка "Очистить заказ" видна, если заказ не пуст и еще не оформлен
-             clearOrderBtn.style.display = !isOrderEmpty && !isOrderPlaced ? 'inline-block' : 'none';
-             // Кнопка "Оформить заказ" видна, если заказ не пуст и еще не оформлен
-             checkoutBtn.style.display = !isOrderEmpty && !isOrderPlaced ? 'inline-block' : 'none';
-             // Кнопка "Новый заказ" видна только после оформления
-             // (ее видимость управляется в handleCheckout и handleNewOrder)
+            const isOrderEmpty = currentOrder.length === 0;
+            // Определяем, был ли заказ оформлен (по видимости кнопки "Новый заказ" или переданному флагу)
+            const orderHasBeenPlaced = isOrderPlaced || newOrderBtn.style.display === 'inline-block';
 
-             // Сообщение о пустом заказе
-             emptyOrderMessage.style.display = isOrderEmpty && !isOrderPlaced ? 'block' : 'none';
-             orderContent.style.display = isOrderEmpty ? 'none' : 'block';
+            // Кнопка "Очистить заказ": видна если заказ НЕ пуст И еще НЕ оформлен
+            clearOrderBtn.style.display = !isOrderEmpty && !orderHasBeenPlaced ? 'inline-block' : 'none';
+            // Кнопка "Оформить заказ": видна если заказ НЕ пуст И еще НЕ оформлен
+            checkoutBtn.style.display = !isOrderEmpty && !orderHasBeenPlaced ? 'inline-block' : 'none';
+            // Кнопка "Новый заказ": видна ТОЛЬКО ПОСЛЕ оформления
+            newOrderBtn.style.display = orderHasBeenPlaced ? 'inline-block' : 'none';
 
-             // Скрываем QR/Статус, если заказ пуст и не оформлен
-             if (isOrderEmpty && !isOrderPlaced) {
-                 qrAndStatusSection.style.display = 'none';
-             }
+            // Сообщение о пустом заказе: видно если пуст И НЕ оформлен
+            emptyOrderMessage.style.display = isOrderEmpty && !orderHasBeenPlaced ? 'block' : 'none';
+            // Контент заказа (список и сумма): скрыт если пуст И НЕ оформлен
+            orderContent.style.display = isOrderEmpty && !orderHasBeenPlaced ? 'none' : 'block';
+
+            // Скрываем QR/Статус, если заказ не был оформлен (например, при очистке)
+            if (!orderHasBeenPlaced) {
+                qrAndStatusSection.style.display = 'none';
+                 orderItemsList.style.pointerEvents = 'auto'; // Разблокируем список, если заказ еще не оформлен
+                 orderItemsList.querySelectorAll('.btn-remove-item').forEach(btn => btn.style.display = 'inline-block'); // Показываем кнопки удаления
+            }
          }
 
         // --- Инициализация ---
         document.addEventListener('DOMContentLoaded', () => {
             renderMenu();
-            showView('menu'); // Начинаем с меню
+            showView('menu-view'); // Начинаем с меню
 
             // Добавляем обработчики событий для изменения опций кастомизации
              [sweetnessOptions, strengthOptions, volumeOptions].forEach(group => {
-                group.addEventListener('change', updateCustomizationPrice);
-            });
+                 group.addEventListener('change', updateCustomizationPrice);
+             });
 
             // Обработчики кнопок
-            backToMenuBtn.addEventListener('click', () => showView('menu'));
+            backToMenuBtn.addEventListener('click', () => showView('menu-view'));
             addToOrderBtn.addEventListener('click', handleAddToOrder);
             clearOrderBtn.addEventListener('click', handleClearOrder);
             checkoutBtn.addEventListener('click', handleCheckout);
             newOrderBtn.addEventListener('click', handleNewOrder);
+            goToCartBtn.addEventListener('click', () => { // Обработчик кнопки корзины
+                 updateOrderSummary(); // Обновляем данные перед показом
+                 showView('order-view');
+            });
 
-             // Кнопка "Корзина" (может быть добавлена в шапку для быстрого перехода)
-             // Пример:
-             // const cartButton = document.createElement('button');
-             // cartButton.textContent = '🛒';
-             // cartButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; ...';
-             // cartButton.onclick = () => showView('order');
-             // document.body.appendChild(cartButton);
-             // Не добавил явно, чтобы не перегружать интерфейс, но это возможно.
 
-             // Изначальное обновление кнопок в корзине (на случай, если начнем с нее)
-             updateOrderViewButtons();
+            // Изначальное обновление счетчика и состояния кнопок (на случай начала не с меню)
+            updateOrderSummary();
+            updateOrderViewButtons(); // Вызовет только если начнем с order-view, но это безопасно
         });
 
     </script>
