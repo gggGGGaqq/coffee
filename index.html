@@ -218,19 +218,134 @@
 
         // --- Основные Функции ---
 
-        // Показать нужный вид (Упрощенная логика)
-        function showView(viewIdToShow) {
-            if (currentViewId === viewIdToShow && views[currentViewId]?.classList.contains('active')) return;
-            const currentViewElement = views[currentViewId];
-            const nextViewElement = views[viewIdToShow];
-            if (!nextViewElement) { console.error("View ID not found:", viewIdToShow); showView('menu-view'); return; }
-            previousViewId = currentViewId;
-            if (currentViewElement) { currentViewElement.classList.remove('active'); currentViewElement.style.opacity = '0'; currentViewElement.style.transform = 'translateY(15px)'; }
-            nextViewElement.style.opacity = '0'; nextViewElement.style.transform = 'translateY(15px)'; // Reset before adding active
-            nextViewElement.classList.add('active'); currentViewId = viewIdToShow;
-            requestAnimationFrame(() => { nextViewElement.style.opacity = '1'; nextViewElement.style.transform = 'translateY(0)'; window.scrollTo(0, 0); });
-            if (currentViewId === 'order-view') { updateOrderViewButtons(); } else { if(newOrderBtn) newOrderBtn.style.display = 'none'; }
+         function handleMenuItemClick(itemId) {
+        console.log(`[DEBUG] handleMenuItemClick called for ID: ${itemId}`); // Лог вызова
+
+        const item = menuData.find(i => i.id === itemId);
+        if (!item || !item.customizable) {
+            console.error(`[DEBUG] Item not found or not customizable: ${itemId}`);
+            return; // Выход, если товар не найден или не кастомизируемый
         }
+        console.log(`[DEBUG] Found customizable item: ${item.name}`);
+
+        selectedItem = { ...item };
+        editingOrderItemId = null;
+        if (addUpdateOrderBtn) addUpdateOrderBtn.textContent = "Добавить в заказ";
+        else console.error("[DEBUG] addUpdateOrderBtn not found!");
+
+        // Проверяем наличие всех необходимых элементов ДО начала работы с ними
+        console.log("[DEBUG] Checking required customization elements...");
+        let elementsOk = true;
+        Object.keys(customizationOptionSections).forEach(optType => {
+            if (!customizationOptionSections[optType]) {
+                console.error(`!!! [DEBUG] Missing section element for: ${optType} (Expected ID: ${optType}-option-section)`);
+                elementsOk = false;
+            }
+            if (!customizationOptionsContainers[optType]) {
+                console.error(`!!! [DEBUG] Missing container element for: ${optType} (Expected ID: ${optType}-options)`);
+                elementsOk = false;
+            }
+        });
+        if (!customizationItemName) { console.error("!!! [DEBUG] Missing element: customization-item-name"); elementsOk = false; }
+        if (!currentItemPriceDisplay) { console.error("!!! [DEBUG] Missing element: current-item-price"); elementsOk = false; }
+        if (!views['customization-view']) { console.error("!!! [DEBUG] Missing element: customization-view section itself!"); elementsOk = false; }
+
+        if (!elementsOk) {
+            console.error("[DEBUG] Aborting handleMenuItemClick due to missing required elements. View switch cancelled.");
+            alert("Ошибка интерфейса: Не найдены элементы для настройки товара. Проверьте консоль (F12).");
+            return; // Прерываем выполнение, если критические элементы отсутствуют
+        }
+         console.log("[DEBUG] All required elements seem present.");
+
+        // Показываем/скрываем секции опций и генерируем их HTML
+        console.log(`[DEBUG] Processing options for ${item.name}:`, selectedItem.options);
+        Object.keys(customizationOptionSections).forEach(optionType => {
+            const section = customizationOptionSections[optionType];
+            const container = customizationOptionsContainers[optionType];
+            const isAvailable = selectedItem.options.includes(optionType);
+
+            if (section) { // Доп. проверка перед доступом
+                section.classList.toggle('visible', isAvailable);
+                console.log(`[DEBUG] Option section '${optionType}' visibility set to: ${isAvailable}`);
+            }
+
+            if (isAvailable && container && customizationData[optionType]) {
+                 console.log(`[DEBUG] Generating HTML for options: ${optionType}`);
+                 generateOptionsHTML(optionType, customizationData[optionType]); // Генерируем с дефолтными
+            } else if (container) {
+                container.innerHTML = ''; // Очищаем, если опция недоступна
+            }
+        });
+
+        if (customizationItemName) customizationItemName.textContent = `Настройте: ${selectedItem.name}`;
+        updateCustomizationPrice(); // Расчет и показ цены
+
+        console.log("[DEBUG] Attempting to call showView('customization-view')"); // Лог перед вызовом
+        showView('customization-view'); // *** Ключевой вызов для переключения вида ***
+        console.log("[DEBUG] handleMenuItemClick finished."); // Лог завершения
+    }
+
+        // Показать нужный вид (Упрощенная логика)
+         function showView(viewIdToShow) {
+        console.log(`[DEBUG] showView called with: ${viewIdToShow}. Current view: ${currentViewId}`); // Лог вызова
+
+        // Проверка, что мы не пытаемся показать уже активный вид
+        if (currentViewId === viewIdToShow && views[currentViewId]?.classList.contains('active')) {
+            console.log(`[DEBUG] View ${viewIdToShow} is already active. No action needed.`);
+            return;
+        }
+
+        const currentViewElement = views[currentViewId];
+        const nextViewElement = views[viewIdToShow]; // Пытаемся получить элемент для нового вида
+
+        // **Очень важная проверка:** Убедимся, что элемент для НОВОГО вида существует
+        if (!nextViewElement) {
+            console.error(`!!! [DEBUG] showView: Element for view ID '${viewIdToShow}' NOT FOUND! Cannot switch view.`);
+            alert(`Критическая ошибка: Не удалось найти интерфейс для вида "${viewIdToShow}".`);
+            // Можно попробовать вернуться в меню как запасной вариант
+            if (currentViewId !== 'menu-view' && views['menu-view']) {
+                 console.warn("[DEBUG] Fallback: Attempting to show menu-view.");
+                 showView('menu-view');
+            }
+            return; // Прерываем выполнение, так как целевой вид не найден
+        }
+
+        console.log(`[DEBUG] Switching from view '${currentViewId}' to '${viewIdToShow}'`);
+        previousViewId = currentViewId;
+
+        // Скрываем текущий вид
+        if (currentViewElement) {
+            currentViewElement.classList.remove('active');
+            currentViewElement.style.opacity = '0'; // Сразу ставим в начало анимации
+            currentViewElement.style.transform = 'translateY(15px)'; // Начальное состояние
+            console.log(`[DEBUG] Removed 'active' from ${currentViewId}`);
+        } else {
+            console.warn(`[DEBUG] Current view element for '${currentViewId}' not found during switch.`);
+        }
+
+        // Показываем новый вид
+        // Сначала сбрасываем стили, потом добавляем класс active для запуска анимации из CSS
+        nextViewElement.style.opacity = '0';
+        nextViewElement.style.transform = 'translateY(15px)';
+        nextViewElement.classList.add('active');
+        currentViewId = viewIdToShow; // Обновляем ID текущего вида *после* добавления класса
+        console.log(`[DEBUG] Added 'active' to ${currentViewId}`);
+
+        // Запускаем анимацию появления и прокрутку
+        requestAnimationFrame(() => {
+            if (views[currentViewId]) { // Проверяем еще раз на всякий случай
+                views[currentViewId].style.opacity = '1';
+                views[currentViewId].style.transform = 'translateY(0)';
+            }
+            window.scrollTo(0, 0);
+        });
+
+        // Обновление кнопок корзины, если нужно
+        if (currentViewId === 'order-view') { updateOrderViewButtons(); }
+        else { if(newOrderBtn) newOrderBtn.style.display = 'none'; }
+
+        console.log(`[DEBUG] showView finished for ${viewIdToShow}`);
+    }
 
         // Рендер меню (с анимацией stagger и без категории "Все") - **ОБНОВЛЕНО**
         function renderMenu() {
