@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Интерактивное Меню Кофейни</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* Сброс стилей и базовые настройки */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-color: #6F4E37; /* Кофейный */
+            --secondary-color: #F5F5DC; /* Бежевый */
+            --accent-color: #E0A96D; /* Светло-коричневый / Золотистый */
+            --text-color: #333;
+            --white-color: #FFFFFF;
+            --success-color: #4CAF50;
+            --transition-speed: 0.4s;
+            --border-radius: 15px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden; /* Предотвращаем горизонтальный скролл */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Общий контейнер */
+        .container {
+            max-width: 500px; /* Оптимально для мобильных */
+            margin: 0 auto;
+            padding: 15px;
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Шапка */
+        header {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            padding: 15px;
+            text-align: center;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        header h1 {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Секции (Виды) */
+        .view {
+            display: none; /* Скрываем все виды по умолчанию */
+            flex-direction: column;
+            animation: fadeIn 0.6s ease-in-out;
+            width: 100%;
+            background-color: var(--white-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            flex-grow: 1; /* Позволяем секции расти */
+        }
+
+        .view.active {
+            display: flex; /* Показываем активный вид */
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        /* Сетка Меню */
+        #menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .menu-item {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Распределяем пространство */
+            padding: 10px;
+            border: 1px solid #eee;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 8px 15px rgba(111, 78, 55, 0.2);
+        }
+
+        .menu-item img {
+            width: 100%;
+            height: 100px; /* Фиксированная высота */
+            object-fit: cover; /* Масштабируем, сохраняя пропорции */
+            display: block;
+            margin-bottom: 10px;
+            border-radius: calc(var(--border-radius) - 5px);
+        }
+
+        .menu-item h3 {
+            font-size: 1em;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .menu-item .price {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        /* Настройка Напитка */
+        .customization-option {
+            margin-bottom: 20px;
+        }
+
+        .customization-option h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            border-bottom: 1px solid var(--accent-color);
+            padding-bottom: 5px;
+        }
+
+        .option-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .option-group label {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: var(--secondary-color);
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+            font-size: 0.9em;
+        }
+
+        .option-group input[type="radio"] {
+            display: none; /* Скрываем стандартный радио-баттон */
+        }
+
+        .option-group input[type="radio"]:checked + label {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            border-color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        #current-item-price {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+        }
+
+        /* Корзина / Заказ */
+         #order-items-list {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        #order-items-list li {
+            background-color: var(--secondary-color);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Перенос на новую строку при нехватке места */
+            border-left: 5px solid var(--accent-color);
+        }
+
+         #order-items-list li .item-details {
+            flex-grow: 1; /* Занимает доступное пространство */
+            margin-right: 10px; /* Отступ справа */
+        }
+
+         #order-items-list li .item-name {
+             font-weight: bold;
+             color: var(--primary-color);
+             display: block; /* Каждый элемент на новой строке для читаемости */
+         }
+         #order-items-list li .item-customizations {
+             font-size: 0.85em;
+             color: #555;
+             display: block;
+         }
+         #order-items-list li .item-price {
+             font-weight: bold;
+             white-space: nowrap; /* Предотвращает перенос цены */
+         }
+
+
+        #order-total {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed var(--accent-color);
+        }
+
+        /* QR код и статус */
+        #qr-code-container {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        #qr-code {
+            width: 180px;
+            height: 180px;
+            margin: 15px auto;
+            border: 5px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #qr-code img {
+             display: block;
+             width: 100% !important; /* Убедимся, что QR код заполняет контейнер */
+             height: 100% !important;
+        }
+
+        #order-status-container {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        #order-status-container h4 {
+             color: var(--primary-color);
+             margin-bottom: 10px;
+        }
+
+        #order-status {
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* Статусы */
+        .status-pending { background-color: #ffc107; color: #333; } /* Желтый */
+        .status-processing { background-color: #17a2b8; color: var(--white-color); } /* Голубой */
+        .status-ready { background-color: var(--success-color); color: var(--white-color); } /* Зеленый */
+
+        /* Кнопки */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: space-between; /* Разносим кнопки по краям */
+            flex-wrap: wrap; /* Перенос кнопок если не влезают */
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px; /* Более круглые кнопки */
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            text-align: center;
+            transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            flex-grow: 1; /* Кнопки растягиваются */
+            min-width: 120px; /* Минимальная ширина кнопки */
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #5a3d2b; /* Темнее кофейный */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+            color: var(--white-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #c89053; /* Темнее акцентный */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+         .btn-back {
+            background-color: #ccc;
+            color: #333;
+         }
+         .btn-back:hover {
+             background-color: #bbb;
+             transform: translateY(-2px);
+             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+         }
+
+         .btn-confirm {
+            background-color: var(--success-color);
+            color: var(--white-color);
+         }
+         .btn-confirm:hover {
+             background-color: #45a049;
+             transform: translateY(-2px);
+             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+         }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Стили для индикатора загрузки (необязательно, но приятно) */
+        .loader {
+            border: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 5px auto 0; /* Центрируем под текстом статуса */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+         /* Стили для пустого заказа */
+         #empty-order-message {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+            font-style: italic;
+         }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Уютное Кофе</h1>
+    </header>
+
+    <div class="container">
+
+        <section id="menu-view" class="view active">
+            <h2>Выберите свой кофе</h2>
+            <div id="menu-grid">
+                </div>
+        </section>
+
+        <section id="customization-view" class="view">
+            <h2 id="customization-item-name">Настройте ваш напиток</h2>
+
+            <div class="customization-option">
+                <h4>Сладость</h4>
+                <div class="option-group" id="sweetness-options">
+                    <input type="radio" id="sweet-none" name="sweetness" value="Без сахара" data-price-mod="0" checked>
+                    <label for="sweet-none">Без сахара</label>
+
+                    <input type="radio" id="sweet-low" name="sweetness" value="Немного" data-price-mod="10">
+                    <label for="sweet-low">Немного (+10₸)</label>
+
+                    <input type="radio" id="sweet-standard" name="sweetness" value="Стандарт" data-price-mod="20">
+                    <label for="sweet-standard">Стандарт (+20₸)</label>
+
+                    <input type="radio" id="sweet-high" name="sweetness" value="Сладкий" data-price-mod="30">
+                    <label for="sweet-high">Сладкий (+30₸)</label>
+                </div>
+            </div>
+
+            <div class="customization-option">
+                <h4>Крепость</h4>
+                <div class="option-group" id="strength-options">
+                    <input type="radio" id="strength-standard" name="strength" value="Стандарт" checked>
+                    <label for="strength-standard">Стандарт</label>
+
+                    <input type="radio" id="strength-high" name="strength" value="Крепче">
+                    <label for="strength-high">Крепче</label>
+                </div>
+            </div>
+
+            <div class="customization-option">
+                <h4>Объём</h4>
+                <div class="option-group" id="volume-options">
+                    <input type="radio" id="volume-small" name="volume" value="Маленький" data-multiplier="1.0" checked>
+                    <label for="volume-small">Маленький (S)</label>
+
+                    <input type="radio" id="volume-medium" name="volume" value="Средний" data-multiplier="1.2">
+                    <label for="volume-medium">Средний (M)</label>
+
+                    <input type="radio" id="volume-large" name="volume" value="Большой" data-multiplier="1.5">
+                    <label for="volume-large">Большой (L)</label>
+                </div>
+            </div>
+
+            <div id="current-item-price">Цена: 0₸</div>
+
+            <div class="button-group">
+                <button id="back-to-menu-btn" class="btn btn-back">Назад к меню</button>
+                <button id="add-to-order-btn" class="btn btn-primary">Добавить в заказ</button>
+            </div>
+        </section>
+
+        <section id="order-view" class="view">
+            <h2>Ваш заказ</h2>
+
+             <div id="order-content">
+                 <ul id="order-items-list">
+                     </ul>
+                 <p id="empty-order-message" style="display: none;">Ваш заказ пока пуст. Добавьте что-нибудь из меню!</p>
+                 <div id="order-total">Общая сумма: 0₸</div>
+             </div>
+
+
+            <div id="qr-and-status" style="display: none;"> <div id="qr-code-container">
+                    <h4>Ваш QR-код для получения заказа</h4>
+                    <div id="qr-code"></div>
+                </div>
+
+                <div id="order-status-container">
+                    <h4>Статус приготовления</h4>
+                    <div id="order-status">Ожидание...</div>
+                     <div id="status-loader" class="loader" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="clear-order-btn" class="btn btn-back">Очистить заказ</button>
+                <button id="checkout-btn" class="btn btn-confirm">Оформить заказ</button>
+                 <button id="new-order-btn" class="btn btn-secondary" style="display: none;">Сделать новый заказ</button>
+            </div>
+        </section>
+
+    </div> <footer>
+         © 2025 Уютное Кофе. Приятного аппетита!
+     </footer>
+
+    <script>
+        // --- Данные Меню ---
+        const menuData = [
+            { id: 'espresso', name: 'Эспрессо', basePrice: 500, image: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+            { id: 'cappuccino', name: 'Капучино', basePrice: 700, image: 'https://images.unsplash.com/photo-1557006094-40e596d98303?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+            { id: 'latte', name: 'Латте', basePrice: 750, image: 'https://images.unsplash.com/photo-1561882468-91101f L_Zy?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+            { id: 'americano', name: 'Американо', basePrice: 600, image: 'https://images.unsplash.com/photo-1580933075516-ac7f7767164a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+            { id: 'mocha', name: 'Мокко', basePrice: 850, image: 'https://images.unsplash.com/photo-1608079778818-a04d8e4b2e4f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+             { id: 'raf', name: 'Раф', basePrice: 900, image: 'https://images.unsplash.com/photo-1572498859711-ff8e018124c8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80' },
+        ];
+
+        // --- Состояние Приложения ---
+        let currentView = 'menu-view';
+        let selectedItem = null; // Текущий выбранный для настройки элемент меню
+        let currentOrder = []; // Массив с элементами заказа
+        let orderCounter = 0; // Счетчик для уникальных ID в заказе
+
+        // --- DOM Элементы ---
+        const views = {
+            menu: document.getElementById('menu-view'),
+            customization: document.getElementById('customization-view'),
+            order: document.getElementById('order-view')
+        };
+        const menuGrid = document.getElementById('menu-grid');
+        const customizationItemName = document.getElementById('customization-item-name');
+        const currentItemPriceDisplay = document.getElementById('current-item-price');
+        const sweetnessOptions = document.getElementById('sweetness-options');
+        const strengthOptions = document.getElementById('strength-options');
+        const volumeOptions = document.getElementById('volume-options');
+        const orderItemsList = document.getElementById('order-items-list');
+        const orderTotalDisplay = document.getElementById('order-total');
+        const qrCodeContainer = document.getElementById('qr-code');
+        const orderStatusDisplay = document.getElementById('order-status');
+        const statusLoader = document.getElementById('status-loader');
+        const qrAndStatusSection = document.getElementById('qr-and-status');
+        const orderContent = document.getElementById('order-content');
+        const emptyOrderMessage = document.getElementById('empty-order-message');
+
+        // Кнопки
+        const backToMenuBtn = document.getElementById('back-to-menu-btn');
+        const addToOrderBtn = document.getElementById('add-to-order-btn');
+        const clearOrderBtn = document.getElementById('clear-order-btn');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const newOrderBtn = document.getElementById('new-order-btn');
+
+        // --- Функции ---
+
+        // Показать нужный вид (секцию)
+        function showView(viewId) {
+            Object.values(views).forEach(view => view.classList.remove('active'));
+            if (views[viewId]) {
+                views[viewId].classList.add('active');
+                currentView = viewId;
+                 window.scrollTo(0, 0); // Прокрутка вверх при смене вида
+            } else {
+                console.error("View not found:", viewId);
+                 views.menu.classList.add('active'); // Возврат в меню по умолчанию
+                 currentView = 'menu';
+            }
+
+             // Управляем видимостью кнопок оформления/очистки/нового заказа
+             if (viewId === 'order') {
+                updateOrderViewButtons();
+             } else {
+                 checkoutBtn.style.display = 'inline-block';
+                 clearOrderBtn.style.display = 'inline-block';
+                 newOrderBtn.style.display = 'none';
+                 qrAndStatusSection.style.display = 'none'; // Скрыть QR/статус при выходе из корзины
+             }
+        }
+
+        // Рендер меню
+        function renderMenu() {
+            menuGrid.innerHTML = ''; // Очищаем перед рендером
+            menuData.forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('menu-item');
+                div.dataset.itemId = item.id; // Сохраняем ID для обработки клика
+                div.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div>
+                         <h3>${item.name}</h3>
+                         <span class="price">${item.basePrice}₸</span>
+                    </div>
+                `;
+                div.addEventListener('click', () => handleMenuItemClick(item.id));
+                menuGrid.appendChild(div);
+            });
+        }
+
+        // Обработка клика по элементу меню
+        function handleMenuItemClick(itemId) {
+            const item = menuData.find(i => i.id === itemId);
+            if (item) {
+                selectedItem = { ...item }; // Копируем данные, чтобы не менять исходные
+                // Сброс настроек к дефолтным при выборе нового итема
+                document.getElementById('sweet-none').checked = true;
+                document.getElementById('strength-standard').checked = true;
+                document.getElementById('volume-small').checked = true;
+
+                customizationItemName.textContent = Настройте: ${selectedItem.name};
+                updateCustomizationPrice(); // Показываем базовую цену (с учетом дефолтов)
+                showView('customization');
+            }
+        }
+
+        // Обновление цены в окне кастомизации
+        function updateCustomizationPrice() {
+            if (!selectedItem) return;
+
+            const basePrice = selectedItem.basePrice;
+            const selectedVolume = volumeOptions.querySelector('input[name="volume"]:checked');
+            const selectedSweetness = sweetnessOptions.querySelector('input[name="sweetness"]:checked');
+
+            const volumeMultiplier = parseFloat(selectedVolume.dataset.multiplier) || 1.0;
+            const sweetnessMod = parseInt(selectedSweetness.dataset.priceMod) || 0;
+
+            // Цена = (Базовая цена * Множитель объема) + Модификатор сладости
+             const currentPrice = Math.round((basePrice * volumeMultiplier) + sweetnessMod);
+
+            currentItemPriceDisplay.textContent = Цена: ${currentPrice}₸;
+        }
+
+        // Добавление настроенного напитка в заказ
+        function handleAddToOrder() {
+            if (!selectedItem) return;
+
+            const selectedVolumeRadio = volumeOptions.querySelector('input[name="volume"]:checked');
+            const selectedSweetnessRadio = sweetnessOptions.querySelector('input[name="sweetness"]:checked');
+            const selectedStrengthRadio = strengthOptions.querySelector('input[name="strength"]:checked');
+
+            const volumeMultiplier = parseFloat(selectedVolumeRadio.dataset.multiplier);
+            const sweetnessMod = parseInt(selectedSweetnessRadio.dataset.priceMod);
+
+            const finalPrice = Math.round((selectedItem.basePrice * volumeMultiplier) + sweetnessMod);
+
+            orderCounter++; // Увеличиваем счетчик для уникального ID
+             const orderItem = {
+                 orderItemId: item-${Date.now()}-${orderCounter}, // Уникальный ID для элемента в заказе
+                 id: selectedItem.id,
+                 name: selectedItem.name,
+                 price: finalPrice,
+                 customizations: {
+                     volume: selectedVolumeRadio.value,
+                     sweetness: selectedSweetnessRadio.value,
+                     strength: selectedStrengthRadio.value
+                 }
+             };
+
+            currentOrder.push(orderItem);
+            // console.log("Order updated:", currentOrder); // Для дебага
+
+            updateOrderSummary();
+             showView('menu'); // Возвращаемся в меню после добавления
+             // Можно добавить уведомление об успешном добавлении
+             showTemporaryMessage("Добавлено в корзину!", "success");
+        }
+
+        // Обновление отображения корзины
+        function updateOrderSummary() {
+            orderItemsList.innerHTML = ''; // Очищаем список
+            let total = 0;
+
+            if (currentOrder.length === 0) {
+                 emptyOrderMessage.style.display = 'block';
+                 orderContent.style.display = 'none'; // Скрываем список и тотал
+            } else {
+                 emptyOrderMessage.style.display = 'none';
+                 orderContent.style.display = 'block'; // Показываем список и тотал
+
+                 currentOrder.forEach((item, index) => {
+                     const li = document.createElement('li');
+                     li.innerHTML = `
+                         <div class="item-details">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-customizations">
+                                ${item.customizations.volume}, ${item.customizations.sweetness}, ${item.customizations.strength}
+                            </span>
+                         </div>
+                         <span class="item-price">${item.price}₸</span>
+                         <button class="btn-remove-item" data-order-item-id="${item.orderItemId}" style="background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; font-size: 14px; margin-left: 10px; cursor: pointer; line-height: 25px; text-align: center;">×</button>
+                     `;
+                     // Добавляем обработчик для кнопки удаления
+                     li.querySelector('.btn-remove-item').addEventListener('click', (e) => {
+                         const itemIdToRemove = e.target.getAttribute('data-order-item-id');
+                         removeItemFromOrder(itemIdToRemove);
+                     });
+                     orderItemsList.appendChild(li);
+                     total += item.price;
+                 });
+             }
+
+            orderTotalDisplay.textContent = Общая сумма: ${total}₸;
+             updateOrderViewButtons(); // Обновляем состояние кнопок в корзине
+        }
+
+         // Удаление элемента из заказа
+         function removeItemFromOrder(orderItemIdToRemove) {
+             currentOrder = currentOrder.filter(item => item.orderItemId !== orderItemIdToRemove);
+             updateOrderSummary();
+             showTemporaryMessage("Позиция удалена", "info");
+         }
+
+         // Показать временное сообщение
+         function showTemporaryMessage(message, type = "info") {
+            const msgDiv = document.createElement('div');
+            msgDiv.textContent = message;
+            msgDiv.style.position = 'fixed';
+            msgDiv.style.bottom = '20px';
+            msgDiv.style.left = '50%';
+            msgDiv.style.transform = 'translateX(-50%)';
+            msgDiv.style.padding = '10px 20px';
+            msgDiv.style.borderRadius = '20px';
+            msgDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+            msgDiv.style.zIndex = '1000';
+            msgDiv.style.opacity = '0';
+            msgDiv.style.transition = 'opacity 0.5s ease';
+
+             if (type === 'success') {
+                 msgDiv.style.backgroundColor = 'var(--success-color)';
+                 msgDiv.style.color = 'white';
+             } else if (type === 'error') {
+                 msgDiv.style.backgroundColor = '#dc3545'; // Красный
+                 msgDiv.style.color = 'white';
+             } else { // info
+                 msgDiv.style.backgroundColor = 'var(--primary-color)';
+                 msgDiv.style.color = 'white';
+             }
+
+             document.body.appendChild(msgDiv);
+
+             // Появление
+             setTimeout(() => { msgDiv.style.opacity = '1'; }, 10);
+
+             // Исчезновение
+             setTimeout(() => {
+                 msgDiv.style.opacity = '0';
+                 setTimeout(() => {
+                     document.body.removeChild(msgDiv);
+                 }, 500); // Ждем завершения анимации исчезновения
+             }, 2500); // Показываем 2.5 секунды
+         }
+
+
+        // Очистка заказа
+        function handleClearOrder() {
+            if (currentOrder.length > 0) {
+                 if (confirm("Вы уверены, что хотите очистить весь заказ?")) {
+                     currentOrder = [];
+                     updateOrderSummary();
+                     qrAndStatusSection.style.display = 'none'; // Скрываем QR и статус
+                     // Сбросить статус, если он был показан
+                     orderStatusDisplay.textContent = 'Ожидание...';
+                     orderStatusDisplay.className = ''; // Сбросить классы статуса
+                     statusLoader.style.display = 'none';
+                     showTemporaryMessage("Заказ очищен", "info");
+                 }
+            } else {
+                 showTemporaryMessage("Заказ уже пуст", "info");
+            }
+             updateOrderViewButtons();
+        }
+
+        // Оформление заказа
+        function handleCheckout() {
+            if (currentOrder.length === 0) {
+                showTemporaryMessage("Ваш заказ пуст. Добавьте что-нибудь!", "error");
+                return;
+            }
+
+             // 1. Генерируем данные для QR (упрощенно - просто JSON заказа)
+             // В реальном приложении здесь мог бы быть ID заказа с сервера
+             const qrData = JSON.stringify({
+                 orderId: WEB-${Date.now()}, // Псевдо-ID заказа
+                 items: currentOrder.map(item => ({ // Берем только нужные данные
+                     name: item.name,
+                     volume: item.customizations.volume,
+                     sweetness: item.customizations.sweetness,
+                     strength: item.customizations.strength,
+                     price: item.price
+                 })),
+                 total: currentOrder.reduce((sum, item) => sum + item.price, 0)
+             });
+
+
+            // 2. Генерируем QR код
+             qrCodeContainer.innerHTML = ''; // Очищаем предыдущий QR
+             try {
+                 new QRCode(qrCodeContainer, {
+                     text: qrData,
+                     width: 160, // Внутренний размер QR
+                     height: 160,
+                     colorDark : "#000000",
+                     colorLight : "#ffffff",
+                     correctLevel : QRCode.CorrectLevel.H // Уровень коррекции ошибок
+                 });
+             } catch (e) {
+                 console.error("Ошибка генерации QR:", e);
+                 qrCodeContainer.innerHTML = '<p style="color: red; font-size: 0.8em;">Ошибка генерации QR-кода.</p>';
+             }
+
+
+            // 3. Показываем секцию с QR и статусом
+            qrAndStatusSection.style.display = 'block';
+
+            // 4. Симулируем статус приготовления
+            simulateOrderStatus();
+
+            // 5. Обновляем кнопки
+            checkoutBtn.style.display = 'none';
+             clearOrderBtn.style.display = 'none';
+            newOrderBtn.style.display = 'inline-block';
+
+             // Можно сделать элементы заказа некликабельными или скрыть кнопки удаления
+             orderItemsList.querySelectorAll('.btn-remove-item').forEach(btn => btn.style.display = 'none');
+             orderItemsList.style.pointerEvents = 'none'; // Блокируем взаимодействие со списком
+
+            showTemporaryMessage("Заказ оформлен! Следите за статусом.", "success");
+        }
+
+        // Симуляция статуса приготовления
+        function simulateOrderStatus() {
+            orderStatusDisplay.textContent = 'Заказ принят';
+            orderStatusDisplay.className = 'status-pending'; // Желтый
+            statusLoader.style.display = 'block'; // Показываем загрузчик
+
+            setTimeout(() => {
+                orderStatusDisplay.textContent = 'Готовится...';
+                orderStatusDisplay.className = 'status-processing'; // Голубой
+            }, 4000); // Через 4 секунды
+
+            setTimeout(() => {
+                orderStatusDisplay.textContent = 'Готов к выдаче!';
+                orderStatusDisplay.className = 'status-ready'; // Зеленый
+                 statusLoader.style.display = 'none'; // Скрываем загрузчик
+            }, 10000); // Еще через 6 секунд (всего 10 сек)
+        }
+
+        // Создание нового заказа
+        function handleNewOrder() {
+            currentOrder = [];
+            selectedItem = null;
+            updateOrderSummary(); // Очистит список и общую сумму
+            qrCodeContainer.innerHTML = ''; // Очистить QR
+            qrAndStatusSection.style.display = 'none'; // Скрыть секцию QR/статуса
+             orderStatusDisplay.textContent = 'Ожидание...';
+             orderStatusDisplay.className = ''; // Сбросить классы статуса
+             statusLoader.style.display = 'none';
+             orderItemsList.style.pointerEvents = 'auto'; // Разблокируем взаимодействие со списком
+
+            showView('menu'); // Переход в меню
+            updateOrderViewButtons(); // Обновляем кнопки (хотя мы уже ушли из вида заказа)
+        }
+
+         // Обновление состояния кнопок в корзине
+         function updateOrderViewButtons() {
+             const isOrderEmpty = currentOrder.length === 0;
+             const isOrderPlaced = newOrderBtn.style.display === 'inline-block'; // Проверяем, был ли заказ уже оформлен
+
+             // Кнопка "Очистить заказ" видна, если заказ не пуст и еще не оформлен
+             clearOrderBtn.style.display = !isOrderEmpty && !isOrderPlaced ? 'inline-block' : 'none';
+             // Кнопка "Оформить заказ" видна, если заказ не пуст и еще не оформлен
+             checkoutBtn.style.display = !isOrderEmpty && !isOrderPlaced ? 'inline-block' : 'none';
+             // Кнопка "Новый заказ" видна только после оформления
+             // (ее видимость управляется в handleCheckout и handleNewOrder)
+
+             // Сообщение о пустом заказе
+             emptyOrderMessage.style.display = isOrderEmpty && !isOrderPlaced ? 'block' : 'none';
+             orderContent.style.display = isOrderEmpty ? 'none' : 'block';
+
+             // Скрываем QR/Статус, если заказ пуст и не оформлен
+             if (isOrderEmpty && !isOrderPlaced) {
+                 qrAndStatusSection.style.display = 'none';
+             }
+         }
+
+        // --- Инициализация ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMenu();
+            showView('menu'); // Начинаем с меню
+
+            // Добавляем обработчики событий для изменения опций кастомизации
+             [sweetnessOptions, strengthOptions, volumeOptions].forEach(group => {
+                group.addEventListener('change', updateCustomizationPrice);
+            });
+
+            // Обработчики кнопок
+            backToMenuBtn.addEventListener('click', () => showView('menu'));
+            addToOrderBtn.addEventListener('click', handleAddToOrder);
+            clearOrderBtn.addEventListener('click', handleClearOrder);
+            checkoutBtn.addEventListener('click', handleCheckout);
+            newOrderBtn.addEventListener('click', handleNewOrder);
+
+             // Кнопка "Корзина" (может быть добавлена в шапку для быстрого перехода)
+             // Пример:
+             // const cartButton = document.createElement('button');
+             // cartButton.textContent = '🛒';
+             // cartButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; ...';
+             // cartButton.onclick = () => showView('order');
+             // document.body.appendChild(cartButton);
+             // Не добавил явно, чтобы не перегружать интерфейс, но это возможно.
+
+             // Изначальное обновление кнопок в корзине (на случай, если начнем с нее)
+             updateOrderViewButtons();
+        });
+
+    </script>
+
+</body>
+</html>
